@@ -116,5 +116,3 @@ npm run test
 | Claude / ChatGPT | Hỗ trợ soạn thảo tài liệu đặc tả (mô tả luồng, user story, use case) từ ý tưởng ban đầu | Đối chiếu lại từng use case với case study gốc và dữ liệu mẫu (CSV) để đảm bảo đúng phạm vi, không bịa quy tắc nghiệp vụ |
 | Claude / ChatGPT | Gợi ý cấu trúc bảng dữ liệu (`part`, `part_stock`, `part_transaction`) và ràng buộc khóa chính/khóa ngoại | Tự kiểm tra lại schema bằng cách chạy migration thực tế và test insert/update dữ liệu mẫu |
 | Claude / ChatGPT | Hỗ trợ viết bộ khung test case cho QT-09 (xuất đủ tồn, xuất vượt tồn, tồn chạm ngưỡng) | Chạy thử `npm run test`, xem log kết quả và đọc lại từng assertion trước khi commit |
-
-*(Ghi chú: cập nhật lại bảng này theo đúng công cụ và mức độ sử dụng thực tế của bạn trong quá trình làm bài.)*
