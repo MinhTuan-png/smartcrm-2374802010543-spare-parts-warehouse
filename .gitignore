@@ -6,7 +6,7 @@ node_modules/
 bin/
 obj/
 target/
-dist/
+dist/node index.js
 __pycache__/
 .venv/
 venv/
