@@ -1,4 +1,4 @@
-# **API CONTRACT** 
+.# **API CONTRACT** 
 
 ## **1.1 Quy ước chung** 
 
@@ -335,7 +335,7 @@ Vai trò không phải là trường nhập mà lấy từ token: EP1 và EP4 nh
 
 |EP8|GET<br>/api/v1/tickets/{ticket_code<br>}/used-parts|Linh kiện đã dùng của phiếu<br>kèm thành tiền và tổng cộng|US7 / FR9 /<br>UC10|COULD|
 |---|---|---|---|---|
-|EP-<br>L2|GET<br>/api/v1/tickets/{ticket_code<br>}|Tra cứu phiếu cho nút [Tra<br>cứu] ở Màn hình 2: trả<br>ticket_code, status,<br>center_id, issue_desc.<br>Thuộc L2, L5 chỉ gọi và<br>không đặc tả lại.|US2 / FR2 /<br>UC2 (bước 2)|Ngoài L5|
+|EP-<br>L2|GET<br>/api/v1/tickets/{ticket_code<br>}|Tra cứu phiếu cho nút [Tra<br>cứu] ở Màn hình 2: trả<br>ticket_code, status,<br>center_id, issue_desc.<br>Thuộc L2, L5 chỉ gọi và<br>không đặc tả lại.|US2 / FR2 /<br>UC2 (bước 2)|Ngoài L5.
 
 
 
