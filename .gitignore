@@ -1,3 +1,4 @@
+
 # Bí mật - KHÔNG commit
 .env
 
@@ -6,7 +7,7 @@ node_modules/
 bin/
 obj/
 target/
-dist/node index.js
+dist/
 __pycache__/
 .venv/
 venv/
@@ -21,3 +22,4 @@ models/*.pt
 .idea/
 .DS_Store
 Thumbs.db
+desktop.ini
