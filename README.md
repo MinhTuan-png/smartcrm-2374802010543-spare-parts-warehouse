@@ -16,7 +16,7 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   │   ├── erd.png
 │   │   ├── usecase.png
 │   │   └── wireframes.png
-│   ├── ai-declaration.md
+│   ├── ai-disclosure.md
 │   ├── architecture.drawio
 │   ├── erd.drawio
 │   ├── srs.md
