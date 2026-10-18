@@ -5,17 +5,15 @@ CREATE TABLE service_center (
     thanh_pho    VARCHAR(40) NOT NULL
 );
  
--- Bảng của L2, chỉ khai báo các cột L5 cần đọc (nạp từ tickets_history.csv)
 CREATE TABLE ticket (
     ticket_id    BIGSERIAL PRIMARY KEY,
     ticket_code  VARCHAR(20) NOT NULL UNIQUE,
     center_id    BIGINT NOT NULL REFERENCES service_center(center_id),
     status       VARCHAR(20) NOT NULL CHECK (status IN ('MOI','DA_PHAN_CONG','DANG_XU_LY',
                  'CHO_LINH_KIEN','HOAN_TAT','DA_DONG','DA_HUY')),
-    issue_desc   TEXT NOT NULL  -- mô tả lỗi, chỉ đọc (Màn hình 2)
+    issue_desc   TEXT NOT NULL 
 );
  
--- Bảng của L2; L5 chỉ ghi qua hàm chuyển trạng thái (nạp từ ticket_status_log.csv)
 CREATE TABLE ticket_status_log (
     log_id       BIGSERIAL PRIMARY KEY,
     ticket_id    BIGINT NOT NULL REFERENCES ticket(ticket_id),
