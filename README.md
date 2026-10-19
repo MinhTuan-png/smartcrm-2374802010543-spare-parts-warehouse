@@ -2,103 +2,126 @@
 
 ## 1. Giới thiệu dự án
 
-SmartCRM là dự án phục vụ việc quản lý kho phụ tùng thay thế cho trung tâm bảo hành. Phạm vi nghiệp vụ được mô tả trong tài liệu tập trung vào việc tra cứu tồn kho, nhập kho, xuất kho và cập nhật số lượng tồn.
+SmartCRM là dự án phục vụ việc quản lý kho phụ tùng thay thế cho trung tâm bảo hành (luồng L5 của hệ thống Smart CRM – Mekong Mobile). Phạm vi nghiệp vụ tập trung vào việc tra cứu tồn kho, xuất kho cho phiếu bảo hành, nhập kho và cảnh báo tồn thấp.
 
-Tài liệu phân tích và thiết kế của dự án nằm trong thư mục `docs/`, bao gồm đặc tả yêu cầu, sơ đồ Use Case, sơ đồ kiến trúc, sơ đồ ERD và wireframe.
+Tài liệu phân tích và thiết kế nằm trong thư mục `docs/`, gồm đặc tả yêu cầu, sơ đồ Use Case, sơ đồ kiến trúc, sơ đồ ERD, wireframe, hợp đồng API và nhật ký thay đổi thiết kế.
 
-## 2. Cấu trúc thư mục
+## 2. Yêu cầu môi trường
 
-```text
-smartcrm-2374802010543-spare-parts-warehouse/
-├── docs/
-│   ├── export/
-│   │   ├── architecture.png
-│   │   ├── erd.png
-│   │   ├── usecase.png
-│   │   └── wireframes.png
-│   ├── ai-disclosure.md
-│   ├── architecture.drawio
-│   ├── erd.drawio
-│   ├── srs.md
-│   ├── use-case.drawio
-│   └── wireframe.drawio
-├── src/
-│   ├── backend/
-│   │   ├── .gitkeep
-│   │   ├── index.js
-│   │   ├── package-lock.json
-│   │   └── package.json
-│   └── frontend/
-│       └── .gitkeep
-├── tests/
-│   └── .gitkeep
-├── .env                         # Cấu hình môi trường cục bộ; không chia sẻ công khai
-├── .env.example                 # Mẫu cấu hình môi trường
-├── .gitignore
-├── BT1_TranHuynhMinhTuan_2374802010543.pdf
-└── README.md
-```
+- Node.js 20 LTS trở lên, npm 10 (kiểm tra bằng `node -v` và `npm -v`)
+- PostgreSQL 16 (hoặc 14 trở lên), đã tạo CSDL tên `smartcrm`
+- Thư viện backend (cài bằng `npm install`): `express`, `pg`, `dotenv`, `csv-parse`
+- Biến môi trường: xem `.env.example` (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PORT`, `SECRET_KEY`)
+- Dữ liệu mẫu: 3 file CSV của dataset (`service_centers.csv`, `parts.csv`, `part_stock.csv`) đặt trong thư mục `data/` ở gốc repo
+- Hệ điều hành đã chạy thử: Windows, terminal PowerShell (gọi API bằng `curl.exe`)
 
-### Ý nghĩa các thư mục và tệp chính
+## 3. Cài đặt và chạy backend
 
-- `docs/`: lưu tài liệu phân tích, thiết kế và khai báo sử dụng AI.
-- `docs/export/`: lưu các hình ảnh xuất ra từ sơ đồ để chèn vào tài liệu hoặc xem nhanh.
-- `*.drawio`: các tệp sơ đồ có thể mở và chỉnh sửa bằng draw.io / diagrams.net.
-- `docs/srs.md`: tài liệu đặc tả yêu cầu phần mềm (SRS).
-- `src/backend/`: mã nguồn backend viết bằng Node.js; `index.js` là tệp đầu vào hiện có.
-- `src/frontend/`: thư mục dành cho frontend. Hiện tại cấu trúc được cung cấp mới có `.gitkeep`.
-- `tests/`: thư mục dành cho mã kiểm thử; hiện tại cấu trúc được cung cấp mới có `.gitkeep`.
-- `.env.example`: mẫu các biến môi trường cần cấu hình.
-- `.env`: cấu hình riêng trên máy cá nhân; không commit các giá trị bí mật lên GitHub.
-- `BT1_...pdf`: bản PDF bài tập được lưu tại thư mục gốc.
+Mở terminal tại thư mục gốc của dự án.
 
-> Lưu ý: `node_modules/` được tạo khi cài thư viện bằng npm. Thông thường không cần đưa thư mục này lên GitHub; nên bảo đảm `.gitignore` có quy tắc `node_modules/`.
-
-## 3. Yêu cầu trước khi chạy
-
-- Đã cài đặt [Node.js](https://nodejs.org/) (đi kèm npm).
-- Đã tải hoặc clone repository về máy.
-- Đã cấu hình các biến môi trường cần thiết dựa trên `.env.example` nếu backend có sử dụng chúng.
-
-## 4. Hướng dẫn cài đặt và chạy backend
-
-Mở Terminal tại thư mục gốc của dự án, sau đó thực hiện:
-
-### Bước 1: Cài đặt thư viện
+**Bước 1. Cài thư viện**
 
 ```powershell
 cd src/backend
 npm install
 ```
 
-### Bước 2: Cấu hình môi trường
+**Bước 2. Cấu hình môi trường**
 
-Quay lại thư mục gốc nếu cần và tạo tệp `.env` từ `.env.example`. Điền các giá trị phù hợp với môi trường chạy thực tế. Không đăng tải mật khẩu, token hoặc thông tin kết nối riêng tư lên GitHub.
-
-Trên PowerShell, có thể sao chép tệp mẫu bằng lệnh sau tại thư mục gốc:
+Tạo `.env` ở thư mục gốc từ file mẫu rồi điền `DB_USER`, `DB_PASSWORD` thật. Không commit `.env`.
 
 ```powershell
+cd ../..
 Copy-Item .env.example .env
 ```
 
-Nếu `.env` đã tồn tại, không cần ghi đè; hãy chỉnh sửa tệp hiện tại.
+**Bước 3. Tạo CSDL** (một lần)
 
-### Bước 3: Khởi chạy backend
+```sql
+CREATE DATABASE smartcrm;
+```
 
-Trong thư mục `src/backend`, kiểm tra các lệnh được khai báo trong phần `scripts` của `package.json`. Nếu đã có script `start`, chạy:
+**Bước 4. Tạo bảng và nạp dữ liệu danh mục**
+
+```powershell
+cd src/backend
+npm run migrate
+npm run seed
+```
+
+Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part_stock: 717` dòng. Hai lệnh này chạy lại được.
+
+**Bước 5. Chạy server**
 
 ```powershell
 npm start
 ```
 
-Nếu chưa có script `start`, hãy dùng lệnh chạy được định nghĩa trong `package.json` hoặc kiểm tra nội dung `index.js` để xác định cách khởi chạy phù hợp. Không thể xác nhận lệnh khởi chạy chính xác nếu chưa kiểm tra cấu hình hiện tại.
+Server chạy tại `http://localhost:3000` (đổi bằng `APP_PORT`).
 
-## 5. Frontend và kiểm thử
+**Gọi thử API** (mở terminal thứ hai):
 
-- **Frontend:** `src/frontend/` hiện có tệp `.gitkeep` để giữ thư mục trong Git. Chỉ có thể hướng dẫn chạy frontend sau khi mã nguồn và cấu hình frontend được bổ sung.
-- **Kiểm thử:** `tests/` hiện có tệp `.gitkeep`. Đặt các tệp kiểm thử tại đây khi triển khai kiểm thử. Lệnh chạy test phụ thuộc vào cấu hình thực tế trong `package.json`.
+```powershell
+curl.exe "http://localhost:3000/api/v1/centers/2/stock?q=pin"
+curl.exe "http://localhost:3000/api/v1/centers/2/stock?low_only=true"
+curl.exe -X PATCH "http://localhost:3000/api/v1/centers/2/stock/LOA-SS-01/threshold" -H "Content-Type: application/json" -d "{\"min_threshold\":10}"
+```
 
-## 6. Tài liệu liên quan
+Đặc tả đầy đủ nằm trong [`docs/api-contract.md`](docs/api-contract.md). Ảnh kết quả chạy lưu trong `docs/screenshots/`.
+
+### Kết quả chạy thử (buổi 8)
+
+**1. Tra cứu tồn kho: tìm "pin" ở trung tâm 2 (14 linh kiện)**
+
+![GET stock](docs/screenshots/01-get-stock.png.jpg)
+
+**2. Đặt ngưỡng cảnh báo hợp lệ (200; tồn 8 < ngưỡng 10 nên có cảnh báo SẮP HẾT)**
+
+![PATCH threshold](docs/screenshots/02-patch-threshold.png.jpg)
+
+**3. Đặt ngưỡng sai (−1): 400 VALIDATION_FAILED**
+
+![PATCH threshold 400](docs/screenshots/03-patch-400.png.jpg)
+
+## 4. Cấu trúc thư mục
+
+```text
+smartcrm-2374802010543-spare-parts-warehouse/
+├── data/                        # Dataset (CSV) dùng để nạp danh mục
+├── docs/
+│   ├── export/                  # Hình xuất từ các sơ đồ
+│   ├── screenshots/             # Ảnh kết quả chạy buổi 8
+│   ├── ai-disclosure.md
+│   ├── api-contract.md
+│   ├── architecture.drawio
+│   ├── erd.drawio
+│   ├── srs.md
+│   ├── thay-doi-thiet-ke.md
+│   ├── use-case.drawio
+│   └── wireframe.drawio
+├── src/
+│   ├── backend/
+│   │   ├── controllers/         # Lớp 2 – API: nhận/trả JSON, kiểm tra đầu vào, ánh xạ lỗi sang mã HTTP
+│   │   ├── services/            # Lớp 3 – Nghiệp vụ: quy tắc QT-09, nhãn cảnh báo tồn thấp
+│   │   ├── repositories/        # Lớp 4 – Truy cập dữ liệu: chỉ có SQL
+│   │   ├── integrations/        # Khung tích hợp với L2 (hiện thực ở BT2)
+│   │   ├── db/                  # Lớp 5 – CSDL: kết nối, migrations, seed
+│   │   ├── errors.js
+│   │   ├── index.js
+│   │   ├── package-lock.json
+│   │   └── package.json
+│   └── frontend/
+├── tests/
+├── .env                         # Cấu hình cục bộ; KHÔNG commit
+├── .env.example                 # Mẫu cấu hình môi trường
+├── .gitignore
+├── BT1_2374802010543_TranHuynhMinhTuan.pdf
+└── README.md
+```
+
+Quy ước kiến trúc: lớp trên chỉ gọi lớp ngay dưới (controller → service → repository → CSDL), khớp Hình 3.1 trong báo cáo BT1.
+
+## 5. Tài liệu liên quan
 
 | Nội dung | Tệp |
 |---|---|
@@ -107,8 +130,24 @@ Nếu chưa có script `start`, hãy dùng lệnh chạy được định nghĩa
 | Sơ đồ ERD | [`docs/erd.drawio`](docs/erd.drawio) |
 | Sơ đồ Use Case | [`docs/use-case.drawio`](docs/use-case.drawio) |
 | Wireframe | [`docs/wireframe.drawio`](docs/wireframe.drawio) |
-| Khai báo sử dụng công cụ AI | [`docs/ai-declaration.md`](docs/ai-declaration.md) |
+| Hợp đồng API | [`docs/api-contract.md`](docs/api-contract.md) |
+| Nhật ký thay đổi thiết kế | [`docs/thay-doi-thiet-ke.md`](docs/thay-doi-thiet-ke.md) |
+| Khai báo sử dụng công cụ AI | [`docs/ai-disclosure.md`](docs/ai-disclosure.md) |
 | Hình ảnh sơ đồ đã xuất | [`docs/export/`](docs/export/) |
+
+## 6. Trạng thái hiện tại (buổi 8)
+
+- [x] Dựng cấu trúc `src/backend/` theo 5 lớp của sơ đồ kiến trúc
+- [x] Migration 001–002 theo DDL BT1 (6 bảng, có chỉ mục)
+- [x] Seed danh mục: 6 trung tâm, 180 linh kiện, 717 dòng tồn
+- [x] EP1 `GET /api/v1/centers/{center_id}/stock` (tra cứu, lọc sắp hết, phân trang 20 dòng, nhãn cảnh báo)
+- [x] EP6 `PATCH /api/v1/centers/{center_id}/stock/{part_code}/threshold` (đặt ngưỡng, sai trả 400 `VALIDATION_FAILED`, không có dòng tồn trả 404 `NOT_FOUND`)
+- [x] Đã chụp ảnh kết quả chạy trong `docs/screenshots/` (xem mục 3)
+- [ ] EP2 xuất kho, EP3 nhập kho, EP4 danh sách sắp hết: làm ở BT2
+- [ ] Xác thực và phân quyền (401/403), mã lỗi 409 và 422: làm ở BT2
+- [ ] Chưa có unit test: viết ở phần tự học; test NFR3 (xuất đồng thời) và NFR5 (403) làm cùng UC2 ở BT2
+- [ ] Frontend: chưa làm
+- Ghi chú: EP1 và EP6 hiện chưa kiểm tra token và vai trò, `center_id` lấy từ đường dẫn. Các thay đổi thiết kế sau phản hồi BT1 ghi trong `docs/thay-doi-thiet-ke.md`.
 
 ## 7. Phụ lục – Khai báo sử dụng công cụ AI
 
@@ -121,6 +160,7 @@ Nếu chưa có script `start`, hãy dùng lệnh chạy được định nghĩa
 | Claude | Mục 3: Gợi ý thiết kế kiến trúc và lập luận kiến trúc. | Mục 3 | Tôi đã đối chiếu với file gốc, tài liệu lý thuyết buổi 5 và tài liệu tự học buổi 5; sửa các phần chưa đúng yêu cầu. |
 | Claude | Mục 4: Gợi ý sơ đồ ERD và trình bày phần SQL DDL. | Mục 4.1, 4.2 | Tôi đã đối chiếu với file gốc, tài liệu lý thuyết buổi 5 và tài liệu tự học buổi 5; sửa các phần chưa đúng yêu cầu. |
 | Claude | Mục 5: Gợi ý wireframe 3 màn hình và đối chiếu các trường trên wireframe. | Mục 5.1 | Tôi đã đối chiếu với file gốc, tài liệu lý thuyết buổi 5 và tài liệu tự học buổi 5; sửa các phần chưa đúng yêu cầu đề bài. |
+| Claude | Buổi 8: Gợi ý khung `src/backend/` theo 5 lớp, migration, seed, mã nguồn EP1 và EP6, soạn nhật ký thay đổi thiết kế. | `src/backend/`, `docs/thay-doi-thiet-ke.md`, `docs/api-contract.md` | Tôi đã tự chạy migration, seed và gọi thử API trên máy, đối chiếu số liệu với dataset và hợp đồng API, đọc hiểu từng lớp trước khi commit. |
 
 ### 7.2. Các phần tự thực hiện, không sử dụng AI
 
@@ -131,4 +171,4 @@ Nếu chưa có script `start`, hãy dùng lệnh chạy được định nghĩa
 | Không dùng | Tự vẽ kiến trúc phân lớp của luồng L5. | Mục 3 | Không áp dụng. |
 | Không dùng | Tự vẽ wireframe. | Mục 5 | Không áp dụng. |
 | Không dùng | Tự vẽ sơ đồ ERD. | Mục 4.1 | Không áp dụng. |
-
+| Không dùng | Tạo CSDL, cấu hình `.env`, chạy thử và chụp ảnh kết quả. | Buổi 8 | Không áp dụng. |
