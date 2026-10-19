@@ -16,6 +16,7 @@ venv/
 data/raw/
 models/*.pkl
 models/*.pt
+data/
 
 # IDE / OS
 .vscode/
