@@ -20,7 +20,7 @@
 
 • Tính chi phí sửa chữa, thanh toán, mã vạch/QR, quản lý lô và hạn sử dụng: đơn giá lấy từ danh mục linh kiện chỉ để hiển thị thành tiền của linh kiện đã dùng.
 
-• Gửi SMS/Zalo/email cảnh báo, đăng nhập SSO và quản lý tài khoản, báo cáo tổng hợp toàn công ty, hạ tầng triển khai: cảnh báo tồn thấp chỉ hiển thị trong hệ thống.
+• Gửi SMS/Zalo/email cảnh báo, đăng nhập SSO và quản lý tài khoản (chỉ có đăng nhập cơ bản bằng tài khoản mẫu để cấp token phân quyền), báo cáo tổng hợp toàn công ty, hạ tầng triển khai: cảnh báo tồn thấp chỉ hiển thị trong hệ thống.
 
 ### Bảng thuật ngữ
 
