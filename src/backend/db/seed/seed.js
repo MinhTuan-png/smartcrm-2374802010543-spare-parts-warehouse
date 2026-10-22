@@ -1,10 +1,13 @@
-// Nạp dữ liệu DANH MỤC từ dataset: service_center, part, part_stock.
+// Nạp dữ liệu từ dataset: danh mục (service_center, part, part_stock) và, nếu có file,
+// phiếu (tickets_history.csv → ticket) cùng sổ giao dịch (part_transactions.csv → part_transaction).
 // Giữ nguyên center_id / part_id trong CSV để part_stock (dùng id số) khớp đúng.
-// Chạy lại được (ON CONFLICT DO NOTHING). Chưa nạp ticket / giao dịch (không thuộc buổi 8).
+// Chạy lại được (ON CONFLICT DO NOTHING). Phần phiếu/giao dịch nằm ở seed-tickets.js.
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('csv-parse/sync');
 const { pool } = require('../connection');
+const { seedTickets } = require('./seed-tickets');
+const { seedUsers } = require('./seed-users');
 
 const DATA_DIR = path.resolve(__dirname, '../../../../data'); // <gốc repo>/data
 
@@ -58,7 +61,11 @@ const readCsv = (file) =>
                      COALESCE(MAX(part_id), 1)) FROM part`
     );
 
+    const extra = await seedTickets(client, DATA_DIR);
+    extra.push(await seedUsers(client));
+
     await client.query('COMMIT');
+    extra.forEach((line) => console.log(line));
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('Seed lỗi, đã hoàn tác:', e.message);
@@ -67,9 +74,9 @@ const readCsv = (file) =>
     client.release();
   }
 
-  for (const t of ['service_center', 'part', 'part_stock']) {
+  for (const t of ['service_center', 'part', 'part_stock', 'ticket', 'part_transaction', 'app_user']) {
     const { rows } = await pool.query(`SELECT COUNT(*)::int AS n FROM ${t}`);
-    console.log(`${t}: ${rows[0].n} dòng`); // kỳ vọng 6 / 180 / 717
+    console.log(`${t}: ${rows[0].n} dòng`); // kỳ vọng 6 / 180 / 717 / 7800 / 4954 / 12
   }
   await pool.end();
 })();
