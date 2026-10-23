@@ -13,7 +13,7 @@ Tài liệu phân tích và thiết kế nằm trong thư mục `docs/`, gồm �
 - Thư viện backend (cài bằng `npm install`): `express`, `pg`, `dotenv`, `csv-parse`, `zod` (kiểm tra đầu vào), `jsonwebtoken` (đọc token)
 - Thư viện frontend (cài bằng `npm install` trong `src/frontend`): `react`, `react-dom`, `vite`
 - Biến môi trường: xem `.env.example` (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PORT`, `SECRET_KEY`, `CORS_ORIGIN`, `DEMO_PASSWORD`, `TEST_DB_NAME`) và `src/frontend/.env.example` (`VITE_API_BASE_URL`)
-- Dữ liệu mẫu: các file CSV của dataset đặt trong thư mục `data/` ở gốc repo: bắt buộc `service_centers.csv`, `parts.csv`, `part_stock.csv`; thêm `tickets_history.csv` và `part_transactions.csv` để có phiếu cho chức năng xuất kho
+- Dữ liệu mẫu: các file CSV lấy từ `CDTN1_Mekong Mobile_Dataset Smart CRM.zip`, đặt trong thư mục `data/` ở gốc repo: bắt buộc `service_centers.csv`, `parts.csv`, `part_stock.csv`; thêm `tickets_history.csv` và `part_transactions.csv` để có phiếu cho chức năng xuất kho
 - Hệ điều hành đã chạy thử: Windows, terminal PowerShell (gọi API bằng `curl.exe`)
 
 ## 3. Cài đặt và chạy backend
@@ -29,16 +29,38 @@ npm install
 
 **Bước 2. Cấu hình môi trường**
 
-Tạo `.env` ở thư mục gốc từ file mẫu rồi điền `DB_USER`, `DB_PASSWORD` thật. Không commit `.env`.
+## Cấu hình file `.env`
+
+1. Tạo file `.env` tại thư mục gốc của project từ file mẫu `.env.example` (nếu có).
 
 ```powershell
 cd ../..
 Copy-Item .env.example .env
 ```
 
+2. Điền thông tin kết nối database:
+   - `DB_USER`: Tên tài khoản PostgreSQL.
+   - `DB_PASSWORD`: Mật khẩu PostgreSQL thực tế.
+3. Thiết lập `SECRET_KEY` bằng một chuỗi ngẫu nhiên đủ dài để ký token. Nếu để trống, chức năng đăng nhập có thể trả về lỗi HTTP 500.
+
+   Chạy lệnh sau trong terminal để tạo khóa ngẫu nhiên:
+
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+   Sao chép kết quả vào file `.env`:
+
+   ```env
+   SECRET_KEY=chuoi_ngau_nhien_vua_tao
+   ```
+
+4. **Lưu ý:** Không commit hoặc đẩy file `.env` lên GitHub vì file này chứa thông tin đăng nhập database và khóa bí mật. Đảm bảo `.env` đã được thêm vào `.gitignore`.
+
+
 **Bước 3. Chép dữ liệu mẫu**
 
-Tạo thư mục `data/` ở gốc repo và chép các file CSV của dataset vào (thư mục này không commit, xem `.gitignore`):
+Dataset không nằm trong repo. Giải nén file `CDTN1_Mekong Mobile_Dataset Smart CRM.zip` (dataset của môn học), tạo thư mục `data/` ở gốc repo rồi chép đủ 5 file CSV vào đó: `service_centers.csv`, `parts.csv`, `part_stock.csv`, `tickets_history.csv`, `part_transactions.csv` (thư mục này không commit, xem `.gitignore`):
 
 ```powershell
 New-Item -ItemType Directory data
@@ -46,8 +68,16 @@ New-Item -ItemType Directory data
 
 **Bước 4. Tạo CSDL** (một lần)
 
+Lệnh dưới đây là lệnh SQL, chạy trong PostgreSQL không gõ thẳng vào Terminal. Cách 1: mở pgAdmin, chuột phải vào server chọn Query Tool, dán lệnh rồi chạy.
+
 ```sql
 CREATE DATABASE smartcrm;
+```
+
+Cách 2: chạy thẳng từ PowerShell bằng `psql` (nhập mật khẩu của người dùng PostgreSQL ban đầu của bạn khi được hỏi):
+
+```powershell
+psql -U postgres -c "CREATE DATABASE smartcrm;"
 ```
 
 **Bước 5. Tạo bảng và nạp dữ liệu danh mục**
@@ -58,7 +88,7 @@ npm run migrate
 npm run seed
 ```
 
-Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part_stock: 717` dòng, `app_user: 12` (tài khoản mẫu, cần `DEMO_PASSWORD` trong `.env`); có thêm hai file phiếu và giao dịch thì `ticket: 7800`, `part_transaction: 4954`. Hai lệnh này chạy lại được. Nếu seed báo không thấy cột của `tickets_history.csv` hoặc `part_transactions.csv`, nó in header thật của file; thêm tên cột đó vào bảng `TICKET_COL` / `TXN_COL` trong `src/backend/db/seed/seed-tickets.js`.
+Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part_stock: 717` dòng, `app_user: 12` (tài khoản mẫu, cần `DEMO_PASSWORD` trong `.env`); có thêm hai file phiếu và giao dịch thì `ticket: 7800`, `part_transaction: 4954`. Hai lệnh này chạy lại được. Seed cần đã chép đủ 5 file CSV ở Bước 3: thiếu file thì báo lỗi `ENOENT` và hoàn tác; chỉ có 3 file đầu thì vẫn nạp được danh mục nhưng không có phiếu để thử xuất kho. Nếu seed báo không thấy cột của `tickets_history.csv` hoặc `part_transactions.csv`, nó in header thật của file; thêm tên cột đó vào bảng `TICKET_COL` / `TXN_COL` trong `src/backend/db/seed/seed-tickets.js`.
 
 **Bước 6. Chạy server**
 
@@ -68,11 +98,19 @@ npm start
 
 Server chạy tại `http://localhost:3000` (đổi bằng `APP_PORT`).
 
-**Gọi thử API** (mở terminal thứ hai, trong `src/backend`). Mọi endpoint cần token: lấy bằng `POST /api/v1/auth/login` (xem `docs/api-contract.md` mục 1.12), hoặc nhanh hơn bằng `npm run token -- <vai trò> <center_id>`:
+**Gọi thử API.** Mở terminal thứ hai (terminal đầu vẫn để `npm start` chạy). Trước hết vào thư mục gốc của dự án (thư mục vừa clone về), rồi vào `src/backend`.
+
+Lưu ý: chỉ cần thử 1 đến 2 lệnh curl.exe bên dưới (ví dụ lệnh xem tồn kho và lệnh xuất linh kiện) để chắc API đã chạy, không cần chạy hết cả 5 lệnh.
+
+```powershell
+cd src/backend
+```
+
+Mọi lệnh bên dưới phải chạy trong `src/backend`. Chạy ở thư mục khác thì không lấy được token và API trả 401. Mọi endpoint đều cần token: lấy bằng `POST /api/v1/auth/login` (xem `docs/api-contract.md` mục 1.12), hoặc nhanh hơn bằng `npm run token -- <vai trò> <center_id>` (cần `.env` đã có `SECRET_KEY`):
 
 ```powershell
 $KTV = npm run -s token -- TECHNICIAN 2
-$QL  = npm run -s token -- MANAGER 2
+$QL = npm run -s token -- MANAGER 2
 curl.exe "http://localhost:3000/api/v1/centers/2/stock?q=pin" -H "Authorization: Bearer $KTV"
 curl.exe "http://localhost:3000/api/v1/centers/2/stock/low" -H "Authorization: Bearer $QL"
 curl.exe -X POST "http://localhost:3000/api/v1/centers/2/stock/exports" -H "Authorization: Bearer $KTV" -H "Content-Type: application/json" -d "{\"ticket_code\":\"BH-000002/2025\",\"part_code\":\"PIN-OP-03\",\"quantity\":2}"
@@ -85,6 +123,8 @@ curl.exe -X PATCH "http://localhost:3000/api/v1/centers/2/stock/LOA-SS-01/thresh
 **Bước 7. Chạy test**
 
 Test dùng một CSDL riêng, tên phải kết thúc bằng `_test` (mặc định `smartcrm_test`) vì mỗi test xoá sạch và tự nạp dữ liệu mẫu nhỏ; không cần thư mục `data/`.
+
+Tạo CSDL test trong PostgreSQL, cách làm như Bước 4 (pgAdmin Query Tool hoặc `psql -U postgres -c "CREATE DATABASE smartcrm_test;"`):
 
 ```sql
 CREATE DATABASE smartcrm_test;
