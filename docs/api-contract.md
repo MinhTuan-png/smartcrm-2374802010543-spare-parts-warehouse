@@ -11,7 +11,7 @@
 | **Ánh xạ tên API và CSDL** | Các trường trùng tên giữa API và CSDL (part_code, ticket_code, center_id, quantity của part_stock, min_threshold, unit_price). Chỉ ba trường của giao dịch kho đổi tên: type = loai, quantity = so_luong, transaction_date = ngay; CSDL giữ tên cột của part_transactions.csv để nạp bằng COPY. |
 | **Phân trang** | page ≥ 1 (mặc định 1), cố định 20 dòng mỗi trang (FR1, FR7). Phản hồi có page, page_size, total_items, total_pages. |
 | **Cảnh báo tồn** | low_stock_warning = (quantity < min_threshold). warning_label = "HẾT HÀNG" nếu có cảnh báo và quantity = 0; "SẮP HẾT" nếu có cảnh báo và quantity > 0; ngược lại null (QT-09, FR6). |
-| **Định dạng lỗi** | Mọi lỗi 4xx/5xx trả `{"error": {"code": "...", "message": "...", "details": ...}}`. Mã error.code dùng chung: VALIDATION_FAILED, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INSUFFICIENT_STOCK, TICKET_STATE_INVALID, INTERNAL_ERROR. |
+| **Định dạng lỗi** | Mọi lỗi 4xx/5xx trả `{"error": {"code": "...", "message": "...", "details": ...}}`. Mã error.code dùng chung: VALIDATION_FAILED, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INSUFFICIENT_STOCK, TICKET_STATE_INVALID, INTERNAL_ERROR. code dành cho máy đọc (giao diện rẽ nhánh theo code); message là câu tiếng Việt cho người dùng, không chứa SQL, tên bảng hay stack trace; details là `null`, danh sách `[{field, reason}]` với 400, hoặc đối tượng số liệu với 409/422. Lỗi 500 có `details.lookup_id` (6 ký tự) trùng với dòng ghi log ở máy chủ để tra cứu. Đường dẫn không tồn tại trả 404 NOT_FOUND cùng định dạng. |
 | **Thứ tự kiểm tra** | (1) 401 xác thực; (2) 403 sai vai trò hoặc sai trung tâm; (3) 400 dữ liệu sai; (4) 404 không tìm thấy; (5) 403 phiếu thuộc trung tâm khác; (6) 422 phiếu sai trạng thái; (7) 409 tồn không đủ. Lỗi đầu tiên gặp phải được trả về, dữ liệu không đổi. Thứ tự này áp dụng cho một lần gọi API; ở UC2, bước 2 (tải phiếu) là thao tác tra cứu phiếu trên giao diện, thực hiện trước khi gửi yêu cầu xuất. |
 
 ## 1.2 Danh sách endpoint của các story MUST
@@ -85,6 +85,8 @@ Authorization: Bearer <access_token_ky_thuat_vien_tt2>
 ```
 
 Ví dụ trên rút gọn còn 3 trong 14 dòng của mảng items; total_items giữ giá trị thật là 14 (khớp tiêu chí chấp nhận của US1).
+
+Từ BT2 phản hồi có thêm `low_stock_count` (số nguyên ≥ 0): trong total_items dòng khớp bộ lọc, bao nhiêu dòng có tồn < ngưỡng. Đây là trường THÊM MỚI nên bên gọi cũ bỏ qua được (thay đổi tương thích, TD-15); giao diện dùng nó làm mốc so sánh cạnh tổng số dòng.
 
 ### Mã trạng thái HTTP
 
@@ -490,5 +492,82 @@ Content-Type: application/json
 | EP5 | POST `/api/v1/tickets/{ticket_code}/shortage-reports` | Báo thiếu linh kiện: phiếu Đang xử lý → Chờ linh kiện, ghi ticket_status_log | US5 / FR4 / UC5 | SHOULD |
 | EP6 | PATCH `/api/v1/centers/{center_id}/stock/{part_code}/threshold` | Đặt ngưỡng cảnh báo (số nguyên ≥ 0) cho dòng tồn có sẵn (đặc tả ở mục 1.9) | US4 / FR8 / UC9 | SHOULD |
 | EP7 | GET `/api/v1/centers/{center_id}/stock/transactions` | Lịch sử giao dịch kho, lọc theo linh kiện và loại, mới nhất trước | US6 / FR7 / UC8 | COULD |
-| EP8 | GET `/api/v1/tickets/{ticket_code}/used-parts` | Linh kiện đã dùng của phiếu kèm thành tiền và tổng cộng | US7 / FR9 / UC10 | COULD |
-| EP-L2 | GET `/api/v1/tickets/{ticket_code}` | Tra cứu phiếu cho nút [Tra cứu] ở Màn hình 2: trả ticket_code, status, center_id, issue_desc. Thuộc L2, L5 chỉ gọi và không đặc tả lại. | US2 / FR2 / UC2 (bước 2) | Ngoài L5 |
+| EP8 | GET `/api/v1/tickets/{ticket_code}/used-parts` | Linh kiện đã dùng của phiếu kèm thành tiền và tổng cộng (đã làm ở buổi 10, đặc tả ở mục 1.13) | US7 / FR9 / UC10 | COULD |
+| EP-L2 | GET `/api/v1/tickets/{ticket_code}` | Tra cứu phiếu cho nút [Tra cứu] ở Màn hình 2: trả ticket_code, status, center_id, issue_desc. Thuộc L2; vì chưa có dịch vụ L2 để gọi, L5 làm một bản CHỈ ĐỌC cùng đường dẫn (mục 1.13, TD-17). | US2 / FR2 / UC2 (bước 2) | Ngoài L5 |
+
+## 1.11 Hợp đồng trong mã nguồn (buổi 9)
+
+Bảng dưới chỉ ra nơi mỗi phần của hợp đồng này được viết bằng mã và được test giữ. Đổi một trường thì sửa đúng một chỗ ở cột "Viết ở", cập nhật tài liệu này trong cùng commit và chạy `npm test`.
+
+| Ranh giới | Viết ở | Thi hành bằng | Test giữ hợp đồng |
+|---|---|---|---|
+| Client → API (đầu vào) | `src/backend/validators/stock.schema.js` | zod, kiểm tra một lần ở controller; sai trả 400 kèm `details` theo trường | `tests/stock.schema.test.js` |
+| Đăng nhập | `src/backend/services/auth.service.js`, `services/password.js` | Băm scrypt, so sánh thời gian hằng; sai tên hay sai mật khẩu cùng một lỗi 401 | `tests/auth.api.test.js` |
+| Token → API | `src/backend/controllers/auth.js` | Kiểm tra chữ ký JWT, vai trò, center_id; thứ tự 401 → 403 → 400 | `tests/auth.test.js`, NFR5 trong `tests/stock.api.test.js` |
+| Service → API (đầu ra) | `src/backend/services/stock.contract.js` | Hàm chuyển đổi `toStockItem`, `toLowStockItem`, `toMovementResult`, `toPage`; là chỗ duy nhất biết cả tên cột CSDL và tên trường API | `tests/stock.contract.test.js` |
+| L2 → L5 (phiếu) | `src/backend/integrations/ticket.integration.js` | Đổi mã trạng thái CSDL (DANG_XU_LY) sang tên có dấu ("Đang xử lý") | `tests/stock.api.test.js` (422) |
+| API → giao diện | `src/frontend/src/api/stock.view.js` | Đổi snake_case sang tên dùng trong giao diện, định dạng tiền VND; trang không đọc tên trường API | `src/frontend/src/api/stock.view.test.js` |
+
+## 1.12 Đăng nhập – POST /api/v1/auth/login
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **Mục đích** | Đổi tên đăng nhập và mật khẩu lấy token dùng cho mọi endpoint ở trên (TD-12, TD-14). |
+| **Tham số** | Body JSON: username (chuỗi 1–50 ký tự), password (chuỗi 1–100 ký tự), cả hai bắt buộc. |
+| **Quyền** | Không cần token. |
+
+```http
+POST /api/v1/auth/login HTTP/1.1
+Content-Type: application/json
+
+{ "username": "ktv2", "password": "<mật khẩu>" }
+```
+
+Phản hồi 200:
+
+```json
+{ "access_token": "<JWT 8 giờ>", "full_name": "Kỹ thuật viên trung tâm 2", "role": "TECHNICIAN", "center_id": 2,
+  "center_code": "TT02", "center_name": "TTBH Quận Tân Bình" }
+```
+
+Token có payload `user_id`, `role`, `center_id`, ký bằng `SECRET_KEY`. Mật khẩu lưu dạng băm scrypt có muối trong bảng `app_user`, không lưu bản gốc.
+
+| Mã | Khi nào | error.code |
+|---|---|---|
+| 200 | Đúng tên đăng nhập và mật khẩu. | — |
+| 400 | Thiếu username hoặc password, hoặc dài quá giới hạn. | VALIDATION_FAILED |
+| 401 | Sai tên đăng nhập HOẶC sai mật khẩu. Hai trường hợp trả cùng một câu "Tên đăng nhập hoặc mật khẩu không đúng." để không lộ tên đăng nhập nào có thật. | UNAUTHORIZED |
+
+Gọi API bằng curl không qua giao diện: `npm run token -- MANAGER 2` in ra một token hợp lệ (ký bằng cùng `SECRET_KEY`), tiện cho việc thử nhanh.
+
+`center_code`, `center_name` thêm ở buổi 10 (TD-17) để giao diện ghi "TT02 - TTBH Quận Tân Bình" như wireframe; chỉ để hiển thị, phân quyền vẫn dùng `center_id` trong token.
+
+## 1.13 Màn hình 2: tra cứu phiếu (EP-L2) và linh kiện đã dùng (EP8) – buổi 10
+
+Cả hai nhận Kỹ thuật viên và Quản lý. Mã phiếu có dấu "/" nên được mã hoá trên đường dẫn: `/api/v1/tickets/BH-000002%2F2025`. Thứ tự lỗi: 401 → 400 (sai định dạng mã phiếu, `field = ticket_code`) → 404 (không có phiếu) → 403 (phiếu của trung tâm khác, không nói phiếu thuộc trung tâm nào; QT-14).
+
+**EP-L2 – GET /api/v1/tickets/{ticket_code}**, 200 OK:
+
+```json
+{ "ticket_code": "BH-000002/2025", "status": "Đang xử lý", "center_id": 2,
+  "issue_desc": "Cảm ứng chập chờn được chẩn đoán hư hỏng dây kết nối", "exportable": true }
+```
+
+`exportable` = phiếu đang ở trạng thái được xuất linh kiện (QT-L5-02), để giao diện báo trước khi bấm Xuất.
+
+**EP8 – GET /api/v1/tickets/{ticket_code}/used-parts** (US7), 200 OK:
+
+```json
+{
+  "ticket_code": "BH-000002/2025",
+  "items": [
+    { "transaction_id": 1001, "transaction_date": "2026-10-20", "part_code": "MH-AP-03",
+      "part_name": "Màn hình Apple loại 3", "quantity": 2, "unit_price": 980000, "line_total": 1960000 },
+    { "transaction_id": 1002, "transaction_date": "2026-10-20", "part_code": "PIN-AP-03",
+      "part_name": "Pin Apple loại 3", "quantity": 1, "unit_price": 150000, "line_total": 150000 }
+  ],
+  "total_amount": 2110000
+}
+```
+
+Chỉ gồm giao dịch XUAT của phiếu, cũ trước mới sau. `unit_price` là đơn giá hiện hành trong danh mục (CSDL không lưu giá lúc xuất). Phiếu chưa xuất linh kiện nào trả `items: []` và `total_amount: 0` (US7 tiêu chí 2), không phải 404.
