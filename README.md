@@ -94,7 +94,7 @@ CREATE DATABASE smartcrm_test;
 npm test
 ```
 
-Kết quả đúng: `# tests 39`, `# pass 39`. Không kết nối được CSDL test thì 23 test tích hợp được bỏ qua (`# skipped 23`), 16 test còn lại (hợp đồng, validation, xác thực, không cần CSDL) vẫn chạy.
+Kết quả đúng: `# tests 47`, `# pass 47`. Không kết nối được CSDL test thì 23 test tích hợp được bỏ qua (`# skipped 23`), 24 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực.
 
 ## 3b. Cài đặt và chạy giao diện
 
@@ -165,8 +165,8 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   └── frontend/                # React + Vite
 │       ├── src/api/             # Lớp gọi API: client.js, stock.api.js, stock.view.js (ranh giới API → giao diện)
 │       ├── src/hooks/           # useApi: trạng thái đang tải / lỗi / dữ liệu
-│       ├── src/components/      # DataState (3 trạng thái), ErrorBox, WarningBadge, Pagination, StockLookup
-│       ├── src/pages/           # Một tệp một màn hình: Login, Stock, LowStock, Export, Import
+│       ├── src/components/      # DataState (3 trạng thái), ErrorBox, ErrorLine, WarningBadge, PartPicker
+│       ├── src/pages/           # Một tệp một màn hình: Login, Stock, Export, Import
 │       ├── .env.example
 │       └── package.json
 ├── tests/                       # node:test – hợp đồng, validation, xác thực, tích hợp (NFR3, NFR5)
@@ -200,7 +200,7 @@ Buổi 10:
 
 - [x] Ba màn hình theo wireframe gọi API thật; trang và thành phần không gọi `fetch(` trực tiếp
 - [x] Luồng chính chạy end-to-end: đăng nhập → tra cứu tồn → xuất kho → cảnh báo sắp hết → nhập kho
-- [x] README mục 3 đã thử trên thư mục clone mới với dataset thật (cài thư viện, migrate, seed đúng số dòng, test 39/39, chạy giao diện)
+- [x] README mục 3 đã thử trên thư mục clone mới với dataset thật (cài thư viện, migrate, seed đúng số dòng, test 47/47, chạy giao diện)
 - [x] Ảnh toàn luồng trên dataset thật trong `docs/screenshots/buoi10-*.png`
 
 Buổi 9:
@@ -210,7 +210,7 @@ Buổi 9:
 - [x] Đăng nhập bằng tài khoản (mật khẩu băm scrypt), token JWT, 401/403 theo vai trò và trung tâm (TD-12, TD-14)
 - [x] EP2 xuất kho (409 INSUFFICIENT_STOCK, 422 TICKET_STATE_INVALID, khoá dòng tồn chống xuất vượt), EP3 nhập kho, EP4 danh sách sắp hết
 - [x] Seed thêm phiếu và giao dịch lịch sử (tuỳ chọn, nếu có file CSV)
-- [x] 39 test backend: hợp đồng, giá trị biên, dữ liệu sai, đăng nhập, xác thực, tích hợp, NFR3 (20 yêu cầu đồng thời), NFR5 (403); 4 test hợp đồng phía giao diện
+- [x] 47 test backend: unit test lớp nghiệp vụ (QT-09, QT-14, QT-L5-02, không cần CSDL), hợp đồng, giá trị biên, dữ liệu sai, đăng nhập, xác thực, tích hợp, NFR3 (20 yêu cầu đồng thời), NFR5 (403); 4 test hợp đồng phía giao diện
 - [x] Giao diện React theo đúng ba màn hình của wireframe (TD-17) gọi API thật, đủ 3 trạng thái đang tải / rỗng / lỗi, không tràn ngang ở 375px
 - [ ] Đề BT2 mục S1 (≥ 2 thực thể đủ CRUD) mâu thuẫn với QT-13 (không xoá) và WON'T quản trị danh mục của SRS: đang hỏi giảng viên
 - [x] Màn hình 2: tra cứu phiếu (bản chỉ đọc của EP-L2) và bảng linh kiện đã dùng (EP8, UC10) (TD-17)
