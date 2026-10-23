@@ -10,9 +10,10 @@ Tài liệu phân tích và thiết kế nằm trong thư mục `docs/`, gồm �
 
 - Node.js 20 LTS trở lên, npm 10 (kiểm tra bằng `node -v` và `npm -v`)
 - PostgreSQL 16 (hoặc 14 trở lên), đã tạo CSDL tên `smartcrm`
-- Thư viện backend (cài bằng `npm install`): `express`, `pg`, `dotenv`, `csv-parse`
-- Biến môi trường: xem `.env.example` (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PORT`, `SECRET_KEY`)
-- Dữ liệu mẫu: 3 file CSV của dataset (`service_centers.csv`, `parts.csv`, `part_stock.csv`) đặt trong thư mục `data/` ở gốc repo
+- Thư viện backend (cài bằng `npm install`): `express`, `pg`, `dotenv`, `csv-parse`, `zod` (kiểm tra đầu vào), `jsonwebtoken` (đọc token)
+- Thư viện frontend (cài bằng `npm install` trong `src/frontend`): `react`, `react-dom`, `vite`
+- Biến môi trường: xem `.env.example` (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PORT`, `SECRET_KEY`, `CORS_ORIGIN`, `DEMO_PASSWORD`, `TEST_DB_NAME`) và `src/frontend/.env.example` (`VITE_API_BASE_URL`)
+- Dữ liệu mẫu: các file CSV của dataset đặt trong thư mục `data/` ở gốc repo: bắt buộc `service_centers.csv`, `parts.csv`, `part_stock.csv`; thêm `tickets_history.csv` và `part_transactions.csv` để có phiếu cho chức năng xuất kho
 - Hệ điều hành đã chạy thử: Windows, terminal PowerShell (gọi API bằng `curl.exe`)
 
 ## 3. Cài đặt và chạy backend
@@ -35,13 +36,21 @@ cd ../..
 Copy-Item .env.example .env
 ```
 
-**Bước 3. Tạo CSDL** (một lần)
+**Bước 3. Chép dữ liệu mẫu**
+
+Tạo thư mục `data/` ở gốc repo và chép các file CSV của dataset vào (thư mục này không commit, xem `.gitignore`):
+
+```powershell
+New-Item -ItemType Directory data
+```
+
+**Bước 4. Tạo CSDL** (một lần)
 
 ```sql
 CREATE DATABASE smartcrm;
 ```
 
-**Bước 4. Tạo bảng và nạp dữ liệu danh mục**
+**Bước 5. Tạo bảng và nạp dữ liệu danh mục**
 
 ```powershell
 cd src/backend
@@ -49,9 +58,9 @@ npm run migrate
 npm run seed
 ```
 
-Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part_stock: 717` dòng. Hai lệnh này chạy lại được.
+Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part_stock: 717` dòng, `app_user: 12` (tài khoản mẫu, cần `DEMO_PASSWORD` trong `.env`); có thêm hai file phiếu và giao dịch thì `ticket: 7800`, `part_transaction: 4954`. Hai lệnh này chạy lại được. Nếu seed báo không thấy cột của `tickets_history.csv` hoặc `part_transactions.csv`, nó in header thật của file; thêm tên cột đó vào bảng `TICKET_COL` / `TXN_COL` trong `src/backend/db/seed/seed-tickets.js`.
 
-**Bước 5. Chạy server**
+**Bước 6. Chạy server**
 
 ```powershell
 npm start
@@ -59,29 +68,68 @@ npm start
 
 Server chạy tại `http://localhost:3000` (đổi bằng `APP_PORT`).
 
-**Gọi thử API** (mở terminal thứ hai):
+**Gọi thử API** (mở terminal thứ hai, trong `src/backend`). Mọi endpoint cần token: lấy bằng `POST /api/v1/auth/login` (xem `docs/api-contract.md` mục 1.12), hoặc nhanh hơn bằng `npm run token -- <vai trò> <center_id>`:
 
 ```powershell
-curl.exe "http://localhost:3000/api/v1/centers/2/stock?q=pin"
-curl.exe "http://localhost:3000/api/v1/centers/2/stock?low_only=true"
-curl.exe -X PATCH "http://localhost:3000/api/v1/centers/2/stock/LOA-SS-01/threshold" -H "Content-Type: application/json" -d "{\"min_threshold\":10}"
+$KTV = npm run -s token -- TECHNICIAN 2
+$QL  = npm run -s token -- MANAGER 2
+curl.exe "http://localhost:3000/api/v1/centers/2/stock?q=pin" -H "Authorization: Bearer $KTV"
+curl.exe "http://localhost:3000/api/v1/centers/2/stock/low" -H "Authorization: Bearer $QL"
+curl.exe -X POST "http://localhost:3000/api/v1/centers/2/stock/exports" -H "Authorization: Bearer $KTV" -H "Content-Type: application/json" -d "{\"ticket_code\":\"BH-000002/2025\",\"part_code\":\"PIN-OP-03\",\"quantity\":2}"
+curl.exe -X POST "http://localhost:3000/api/v1/centers/2/stock/imports" -H "Authorization: Bearer $QL" -H "Content-Type: application/json" -d "{\"part_code\":\"LOA-AP-01\",\"quantity\":20}"
+curl.exe -X PATCH "http://localhost:3000/api/v1/centers/2/stock/LOA-SS-01/threshold" -H "Authorization: Bearer $QL" -H "Content-Type: application/json" -d "{\"min_threshold\":10}"
 ```
 
 Đặc tả đầy đủ nằm trong [`docs/api-contract.md`](docs/api-contract.md). Ảnh kết quả chạy lưu trong `docs/screenshots/`.
 
-### Kết quả chạy thử (buổi 8)
+**Bước 7. Chạy test**
 
-**1. Tra cứu tồn kho: tìm "pin" ở trung tâm 2 (14 linh kiện)**
+Test dùng một CSDL riêng, tên phải kết thúc bằng `_test` (mặc định `smartcrm_test`) vì mỗi test xoá sạch và tự nạp dữ liệu mẫu nhỏ; không cần thư mục `data/`.
 
-![GET stock](docs/screenshots/01-get-stock.png.jpg)
+```sql
+CREATE DATABASE smartcrm_test;
+```
 
-**2. Đặt ngưỡng cảnh báo hợp lệ (200; tồn 8 < ngưỡng 10 nên có cảnh báo SẮP HẾT)**
+```powershell
+npm test
+```
 
-![PATCH threshold](docs/screenshots/02-patch-threshold.png.jpg)
+Kết quả đúng: `# tests 39`, `# pass 39`. Không kết nối được CSDL test thì 23 test tích hợp được bỏ qua (`# skipped 23`), 16 test còn lại (hợp đồng, validation, xác thực, không cần CSDL) vẫn chạy.
 
-**3. Đặt ngưỡng sai (−1): 400 VALIDATION_FAILED**
+## 3b. Cài đặt và chạy giao diện
 
-![PATCH threshold 400](docs/screenshots/03-patch-400.png.jpg)
+Backend phải đang chạy (Bước 6) và `.env` ở gốc có `CORS_ORIGIN=http://localhost:5173`.
+
+```powershell
+cd src/frontend
+npm install
+Copy-Item .env.example .env
+npm run dev
+```
+
+Mở `http://localhost:5173` và đăng nhập bằng tài khoản mẫu do `npm run seed` tạo: `ktv2` (kỹ thuật viên trung tâm 2) hoặc `quanly2` (quản lý trung tâm 2), mật khẩu là giá trị `DEMO_PASSWORD` trong `.env`. Mỗi trung tâm có một cặp tương tự (`ktv1`, `quanly1`...). Giao diện theo ba màn hình của wireframe: Kỹ thuật viên thấy Tồn kho (Màn hình 1, có ô lọc sắp hết) và Xuất linh kiện (Màn hình 2, có tra cứu phiếu và linh kiện đã dùng); Quản lý thấy Tồn kho (có Sửa ngưỡng) và Nhập kho (Màn hình 3). Test hợp đồng phía giao diện: `npm test` trong `src/frontend`.
+
+Token lưu trong `localStorage` của trình duyệt: chấp nhận ở mức prototype vì giao diện không hiển thị HTML do người dùng nhập; hạn chế là nếu trang có lỗ hổng XSS thì token có thể bị đọc. API trả 401 thì giao diện xoá token và quay về trang đăng nhập.
+
+### Kết quả chạy toàn luồng trên dữ liệu thật (buổi 10)
+
+Luồng chính: đăng nhập → tra cứu tồn → xuất linh kiện cho phiếu → tồn giảm và cảnh báo sắp hết → quản lý nhập kho.
+
+**1. Màn hình 1: tồn kho, lọc sắp hết, sửa ngưỡng**
+
+![Màn hình 1](docs/screenshots/buoi10-man-hinh-1.png)
+
+**2. Màn hình 2: xuất linh kiện cho phiếu, bảng linh kiện đã dùng**
+
+![Màn hình 2](docs/screenshots/buoi10-man-hinh-2.png)
+
+**3. Màn hình 3: nhập kho**
+
+![Màn hình 3](docs/screenshots/buoi10-man-hinh-3.png)
+
+**4. Trạng thái lỗi (tắt backend, có nút Thử lại) và trạng thái rỗng (lọc không có kết quả)**
+
+![Lỗi](docs/screenshots/buoi10-loi.png) ![Rỗng](docs/screenshots/buoi10-rong.png)
 
 ## 4. Cấu trúc thư mục
 
@@ -92,6 +140,7 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   ├── export/                  # Hình xuất từ các sơ đồ
 │   ├── screenshots/             # Ảnh kết quả chạy buổi 8
 │   ├── ai-disclosure.md
+│   ├── architecture-thuc-te.md  # Sơ đồ kiến trúc đã hiện thực (BT2)
 │   ├── api-contract.md
 │   ├── architecture.drawio
 │   ├── erd.drawio
@@ -101,17 +150,26 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   └── wireframe.drawio
 ├── src/
 │   ├── backend/
-│   │   ├── controllers/         # Lớp 2 – API: nhận/trả JSON, kiểm tra đầu vào, ánh xạ lỗi sang mã HTTP
-│   │   ├── services/            # Lớp 3 – Nghiệp vụ: quy tắc QT-09, nhãn cảnh báo tồn thấp
+│   │   ├── controllers/         # Lớp 2 – API (vai trò "routes/" trong đề BT2, TD-16): Express Router, xác thực, ánh xạ lỗi
+│   │   ├── validators/          # Lớp 2 – Hợp đồng đầu vào viết bằng zod
+│   │   ├── services/            # Lớp 3 – Nghiệp vụ (QT-09, QT-14, QT-L5-01, QT-L5-02) và stock.contract.js
 │   │   ├── repositories/        # Lớp 4 – Truy cập dữ liệu: chỉ có SQL
-│   │   ├── integrations/        # Khung tích hợp với L2 (hiện thực ở BT2)
-│   │   ├── db/                  # Lớp 5 – CSDL: kết nối, migrations, seed
+│   │   ├── integrations/        # Tích hợp với L2: đọc phiếu, đổi mã trạng thái sang tên có dấu
+│   │   ├── db/                  # Lớp 5 – CSDL: kết nối, migrations/ (001–003), seed/ (dữ liệu mẫu + tài khoản mẫu)
+│   │   ├── scripts/             # make-token.js, run-tests.js
+│   │   ├── app.js               # Dựng ứng dụng Express (test dùng lại)
 │   │   ├── errors.js
-│   │   ├── index.js
+│   │   ├── index.js             # Khởi động server
 │   │   ├── package-lock.json
 │   │   └── package.json
-│   └── frontend/
-├── tests/
+│   └── frontend/                # React + Vite
+│       ├── src/api/             # Lớp gọi API: client.js, stock.api.js, stock.view.js (ranh giới API → giao diện)
+│       ├── src/hooks/           # useApi: trạng thái đang tải / lỗi / dữ liệu
+│       ├── src/components/      # DataState (3 trạng thái), ErrorBox, WarningBadge, Pagination, StockLookup
+│       ├── src/pages/           # Một tệp một màn hình: Login, Stock, LowStock, Export, Import
+│       ├── .env.example
+│       └── package.json
+├── tests/                       # node:test – hợp đồng, validation, xác thực, tích hợp (NFR3, NFR5)
 ├── .env                         # Cấu hình cục bộ; KHÔNG commit
 ├── .env.example                 # Mẫu cấu hình môi trường
 ├── .gitignore
@@ -133,9 +191,32 @@ Quy ước kiến trúc: lớp trên chỉ gọi lớp ngay dưới (controller 
 | Hợp đồng API | [`docs/api-contract.md`](docs/api-contract.md) |
 | Nhật ký thay đổi thiết kế | [`docs/thay-doi-thiet-ke.md`](docs/thay-doi-thiet-ke.md) |
 | Khai báo sử dụng công cụ AI | [`docs/ai-disclosure.md`](docs/ai-disclosure.md) |
+| Kiến trúc đã hiện thực (BT2) | [`docs/architecture-thuc-te.md`](docs/architecture-thuc-te.md) |
 | Hình ảnh sơ đồ đã xuất | [`docs/export/`](docs/export/) |
 
-## 6. Trạng thái hiện tại (buổi 8)
+## 6. Trạng thái hiện tại (buổi 10)
+
+Buổi 10:
+
+- [x] Ba màn hình theo wireframe gọi API thật; trang và thành phần không gọi `fetch(` trực tiếp
+- [x] Luồng chính chạy end-to-end: đăng nhập → tra cứu tồn → xuất kho → cảnh báo sắp hết → nhập kho
+- [x] README mục 3 đã thử trên thư mục clone mới với dataset thật (cài thư viện, migrate, seed đúng số dòng, test 39/39, chạy giao diện)
+- [x] Ảnh toàn luồng trên dataset thật trong `docs/screenshots/buoi10-*.png`
+
+Buổi 9:
+
+- [x] Hợp đồng dữ liệu viết bằng mã ở mỗi ranh giới, kèm comment hình dạng · ý nghĩa · hành vi khi sai (bảng ở mục 1.11 của `docs/api-contract.md`)
+- [x] Sửa phản hồi EP1, EP6 cho khớp hợp đồng API (TD-10); một định dạng lỗi cho toàn bộ API, lỗi 500 có mã tra cứu (TD-11)
+- [x] Đăng nhập bằng tài khoản (mật khẩu băm scrypt), token JWT, 401/403 theo vai trò và trung tâm (TD-12, TD-14)
+- [x] EP2 xuất kho (409 INSUFFICIENT_STOCK, 422 TICKET_STATE_INVALID, khoá dòng tồn chống xuất vượt), EP3 nhập kho, EP4 danh sách sắp hết
+- [x] Seed thêm phiếu và giao dịch lịch sử (tuỳ chọn, nếu có file CSV)
+- [x] 39 test backend: hợp đồng, giá trị biên, dữ liệu sai, đăng nhập, xác thực, tích hợp, NFR3 (20 yêu cầu đồng thời), NFR5 (403); 4 test hợp đồng phía giao diện
+- [x] Giao diện React theo đúng ba màn hình của wireframe (TD-17) gọi API thật, đủ 3 trạng thái đang tải / rỗng / lỗi, không tràn ngang ở 375px
+- [ ] Đề BT2 mục S1 (≥ 2 thực thể đủ CRUD) mâu thuẫn với QT-13 (không xoá) và WON'T quản trị danh mục của SRS: đang hỏi giảng viên
+- [x] Màn hình 2: tra cứu phiếu (bản chỉ đọc của EP-L2) và bảng linh kiện đã dùng (EP8, UC10) (TD-17)
+- [ ] Để sau: báo thiếu linh kiện (UC5, EP5); lịch sử giao dịch kho ở Màn hình 3 (UC8, EP7)
+
+Buổi 8:
 
 - [x] Dựng cấu trúc `src/backend/` theo 5 lớp của sơ đồ kiến trúc
 - [x] Migration 001–002 theo DDL BT1 (6 bảng, có chỉ mục)
@@ -143,11 +224,7 @@ Quy ước kiến trúc: lớp trên chỉ gọi lớp ngay dưới (controller 
 - [x] EP1 `GET /api/v1/centers/{center_id}/stock` (tra cứu, lọc sắp hết, phân trang 20 dòng, nhãn cảnh báo)
 - [x] EP6 `PATCH /api/v1/centers/{center_id}/stock/{part_code}/threshold` (đặt ngưỡng, sai trả 400 `VALIDATION_FAILED`, không có dòng tồn trả 404 `NOT_FOUND`)
 - [x] Đã chụp ảnh kết quả chạy trong `docs/screenshots/` (xem mục 3)
-- [ ] EP2 xuất kho, EP3 nhập kho, EP4 danh sách sắp hết: làm ở BT2
-- [ ] Xác thực và phân quyền (401/403), mã lỗi 409 và 422: làm ở BT2
-- [ ] Chưa có unit test: viết ở phần tự học; test NFR3 (xuất đồng thời) và NFR5 (403) làm cùng UC2 ở BT2
-- [ ] Frontend: chưa làm
-- Ghi chú: EP1 và EP6 hiện chưa kiểm tra token và vai trò, `center_id` lấy từ đường dẫn. Các thay đổi thiết kế sau phản hồi BT1 ghi trong `docs/thay-doi-thiet-ke.md`.
+- Các thay đổi thiết kế sau phản hồi BT1 và ở buổi 9 ghi trong `docs/thay-doi-thiet-ke.md`.
 
 ## 7. Phụ lục – Khai báo sử dụng công cụ AI
 
@@ -161,6 +238,8 @@ Quy ước kiến trúc: lớp trên chỉ gọi lớp ngay dưới (controller 
 | Claude | Mục 4: Gợi ý sơ đồ ERD và trình bày phần SQL DDL. | Mục 4.1, 4.2 | Tôi đã đối chiếu với file gốc, tài liệu lý thuyết buổi 5 và tài liệu tự học buổi 5; sửa các phần chưa đúng yêu cầu. |
 | Claude | Mục 5: Gợi ý wireframe 3 màn hình và đối chiếu các trường trên wireframe. | Mục 5.1 | Tôi đã đối chiếu với file gốc, tài liệu lý thuyết buổi 5 và tài liệu tự học buổi 5; sửa các phần chưa đúng yêu cầu đề bài. |
 | Claude | Buổi 8: Gợi ý khung `src/backend/` theo 5 lớp, migration, seed, mã nguồn EP1 và EP6, soạn nhật ký thay đổi thiết kế. | `src/backend/`, `docs/thay-doi-thiet-ke.md`, `docs/api-contract.md` | Tôi đã tự chạy migration, seed và gọi thử API trên máy, đối chiếu số liệu với dataset và hợp đồng API, đọc hiểu từng lớp trước khi commit. |
+
+Khai báo cho Bài tập 2 (buổi 8–12), theo mẫu có cột "Em đã kiểm chứng thế nào", nằm ở [`docs/ai-disclosure.md`](docs/ai-disclosure.md).
 
 ### 7.2. Các phần tự thực hiện, không sử dụng AI
 
