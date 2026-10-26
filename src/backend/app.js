@@ -9,10 +9,16 @@ const { AppError } = require('./errors');
 
 const app = express();
 
-// CORS cho giao diện chạy ở cổng khác (Vite 5173). Chỉ cho đúng nguồn khai báo trong .env.
+// CORS cho giao diện chạy ở cổng khác (Vite 5173, nếu 5173 bị chiếm thì Vite tự sang 5174).
+// CORS_ORIGIN trong .env có thể khai báo nhiều nguồn, cách nhau bằng dấu phẩy.
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 app.use((req, res, next) => {
-  const origin = process.env.CORS_ORIGIN;
-  if (origin && req.headers.origin === origin) {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
     res.set({
       'Access-Control-Allow-Origin': origin,
       'Access-Control-Allow-Headers': 'Authorization, Content-Type',
