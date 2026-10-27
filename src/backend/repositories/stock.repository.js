@@ -3,7 +3,8 @@
 const db = require('../db/connection');
 
 const COLUMNS = 'p.part_id, p.part_code, p.part_name, s.quantity, s.min_threshold, p.unit_price';
-const FROM = 'FROM part_stock s JOIN part p ON p.part_id = s.part_id';
+// Chỉ thấy dòng tồn và linh kiện ĐANG DÙNG; dòng đã ngừng dùng vẫn nằm trong CSDL (QT-13, TD-21).
+const FROM = 'FROM part_stock s JOIN part p ON p.part_id = s.part_id AND s.is_active AND p.is_active';
 
 async function findPage({ centerId, q, lowOnly, limit, offset }) {
   const where = ['s.center_id = $1'];
@@ -60,11 +61,36 @@ async function updateThreshold(centerId, partCode, minThreshold) {
     `UPDATE part_stock s
         SET min_threshold = $3
        FROM part p
-      WHERE s.part_id = p.part_id AND s.center_id = $1 AND p.part_code = $2
+      WHERE s.part_id = p.part_id AND s.center_id = $1 AND p.part_code = $2 AND s.is_active AND p.is_active
   RETURNING ${COLUMNS}`,
     [centerId, partCode, minThreshold]
   );
   return res.rows[0] || null;
+}
+
+/**
+ * Thêm dòng tồn (tồn 0) cho linh kiện đang dùng trong danh mục, hoặc DÙNG LẠI dòng đã ngừng dùng
+ * (đặt ngưỡng mới; tồn vẫn là 0 vì chỉ ngừng dùng được khi tồn 0). Trả null khi linh kiện không có
+ * trong danh mục hoặc dòng tồn đang dùng (service quyết định lỗi nào). Một câu lệnh nên không tạo trùng.
+ */
+async function insertOrReactivate(centerId, partCode, minThreshold) {
+  const res = await db.query(
+    `INSERT INTO part_stock (center_id, part_id, quantity, min_threshold)
+     SELECT $1, part_id, 0, $3 FROM part WHERE part_code = $2 AND is_active
+     ON CONFLICT (center_id, part_id) DO UPDATE
+        SET min_threshold = EXCLUDED.min_threshold, is_active = TRUE
+      WHERE part_stock.is_active = FALSE
+  RETURNING center_id`,
+    [centerId, partCode, minThreshold]
+  );
+  return res.rows[0] ? findOne(centerId, partCode) : null;
+}
+
+/** Ngừng dùng một dòng tồn (QT-13: không xoá dòng; giao dịch cũ vẫn tham chiếu được). */
+async function deactivate(client, centerId, partId) {
+  await client.query(
+    'UPDATE part_stock SET is_active = FALSE WHERE center_id = $1 AND part_id = $2', [centerId, partId]
+  );
 }
 
 // Khoá dòng tồn tới hết giao dịch (SELECT ... FOR UPDATE). Hai yêu cầu xuất cùng linh kiện
@@ -119,5 +145,5 @@ async function findUsedParts(centerId, ticketCode) {
 module.exports = {
   inTransaction,
   findPage, findLowPage, findOne, updateThreshold, lockStock, changeQuantity, insertTransaction,
-  findUsedParts,
+  findUsedParts, insertOrReactivate, deactivate,
 };
