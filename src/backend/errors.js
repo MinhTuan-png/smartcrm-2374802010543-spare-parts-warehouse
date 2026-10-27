@@ -3,7 +3,8 @@
 class AppError extends Error {
   /**
    * @param {string} code    Mã máy đọc: VALIDATION_FAILED | UNAUTHORIZED | FORBIDDEN | NOT_FOUND
-   *                         | INSUFFICIENT_STOCK | TICKET_STATE_INVALID | INTERNAL_ERROR
+   *                         | INSUFFICIENT_STOCK | TICKET_STATE_INVALID | ALREADY_EXISTS
+   *                         | STOCK_NOT_EMPTY | INTERNAL_ERROR
    * @param {string} message Câu cho người dùng đọc, tiếng Việt có dấu, không chứa chi tiết kỹ thuật.
    * @param {object|Array|null} [details] Dữ liệu kèm theo để giao diện hiển thị
    *                         (ví dụ danh sách trường sai, tồn hiện có). null nếu không có.
