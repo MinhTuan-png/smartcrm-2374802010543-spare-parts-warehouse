@@ -8,7 +8,11 @@
     "token": "node scripts/make-token.js",
     "start": "node index.js",
     "migrate": "node db/migrate.js",
-    "seed": "node db/seed/seed.js"
+    "seed": "node db/seed/seed.js",
+    "wait-db": "node db/wait-for-db.js"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "keywords": [],
   "author": "",

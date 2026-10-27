@@ -8,15 +8,59 @@ Tài liệu phân tích và thiết kế nằm trong thư mục `docs/`, gồm �
 
 ## 2. Yêu cầu môi trường
 
-- Node.js 20 LTS trở lên, npm 10 (kiểm tra bằng `node -v` và `npm -v`)
-- PostgreSQL 16 (hoặc 14 trở lên), đã tạo CSDL tên `smartcrm`
-- Thư viện backend (cài bằng `npm install`): `express`, `pg`, `dotenv`, `csv-parse`, `zod` (kiểm tra đầu vào), `jsonwebtoken` (đọc token)
-- Thư viện frontend (cài bằng `npm install` trong `src/frontend`): `react`, `react-dom`, `vite`
-- Biến môi trường: xem `.env.example` (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PORT`, `SECRET_KEY`, `CORS_ORIGIN`, `DEMO_PASSWORD`, `TEST_DB_NAME`) và `src/frontend/.env.example` (`VITE_API_BASE_URL`)
-- Dữ liệu mẫu: các file CSV lấy từ `CDTN1_Mekong Mobile_Dataset Smart CRM.zip`, đặt trong thư mục `data/` ở gốc repo: bắt buộc `service_centers.csv`, `parts.csv`, `part_stock.csv`; thêm `tickets_history.csv` và `part_transactions.csv` để có phiếu cho chức năng xuất kho
-- Hệ điều hành đã chạy thử: Windows, terminal PowerShell (gọi API bằng `curl.exe`)
+Chạy bằng Docker (mục 3.1) chỉ cần **Docker Desktop** (hoặc Docker Engine) có **Docker Compose v2** (lệnh `docker compose`, kiểm tra bằng `docker compose version`). Không cần cài Node hay PostgreSQL; phiên bản được ghim trong ảnh: Node.js 22 (`node:22-alpine`), PostgreSQL 16 (`postgres:16-alpine`), nginx 1.27.
 
-## 3. Cài đặt và chạy backend
+Chạy trực tiếp bằng Node (mục 3.2) cần:
+
+- Node.js 22 LTS (tối thiểu 20; Node 20 đã hết hạn hỗ trợ từ 04/2026), npm 10 trở lên (kiểm tra bằng `node -v` và `npm -v`)
+- PostgreSQL 16 (hoặc 14 trở lên), đã tạo CSDL tên `smartcrm`
+- Thư viện backend (cài đúng phiên bản trong `package-lock.json` bằng `npm ci`): `express`, `pg`, `dotenv`, `csv-parse`, `zod` (kiểm tra đầu vào), `jsonwebtoken` (đọc token)
+- Thư viện frontend (cài bằng `npm ci` trong `src/frontend`): `react`, `react-dom`, `vite`
+- Biến môi trường: mọi biến có trong `.env.example` kèm giá trị mẫu và chú thích (`DB_*`, `APP_PORT`, `SECRET_KEY`, `CORS_ORIGIN`, `DEMO_PASSWORD`, `LOG_LEVEL`, `DB_CONNECT_TIMEOUT_MS`, `LOCAL_DATA_DIR`, `DATA_DIR`, `WEB_PORT`, `TEST_DB_NAME`...) và `src/frontend/.env.example` (`VITE_API_BASE_URL`)
+- Dữ liệu: repo có sẵn dữ liệu mẫu nhỏ trong `data-mau/` (xem `data-mau/README.md`), Docker tự nạp thư mục này. Dataset đầy đủ lấy từ `CDTN1_Mekong Mobile_Dataset Smart CRM.zip`, đặt trong thư mục `data/` ở gốc repo (không commit): bắt buộc `service_centers.csv`, `parts.csv`, `part_stock.csv`; thêm `tickets_history.csv` và `part_transactions.csv` để có phiếu cho chức năng xuất kho
+- Hệ điều hành đã chạy thử: Windows, terminal PowerShell (gọi API bằng `curl.exe`); bản Docker đã chạy thử trên Linux (Docker 29, Compose v2)
+
+## 3. Chạy hệ thống
+
+Có hai cách. Cách 1 (Docker) chỉ cần hai lệnh và không phải cài gì ngoài Docker; cách 2 chạy trực tiếp bằng Node trên máy.
+
+### 3.1. Cách 1: Docker, hai lệnh (khuyến nghị)
+
+Mở terminal tại thư mục gốc repo vừa clone:
+
+```bash
+cp .env.example .env          # Windows PowerShell: Copy-Item .env.example .env
+docker compose up -d --build
+```
+
+Lần đầu mất vài phút để tải ảnh và dựng. Compose chạy ba dịch vụ theo thứ tự: `db` (PostgreSQL) → `api` (backend, chờ `db` healthy, tự chờ CSDL, tạo bảng, nạp dữ liệu mẫu `data-mau/`) → `web` (giao diện, chờ `api` healthy).
+
+**Kiểm tra hệ thống đã lên**
+
+```bash
+docker compose ps                     # cột STATUS của db, api, web phải là "healthy", không chỉ "running"
+curl http://localhost:3000/health     # {"status":"ok","db":"ok"}   (PowerShell: curl.exe)
+docker compose logs api --tail 20     # log dạng JSON, mỗi yêu cầu có requestId
+```
+
+Mở `http://localhost:8080` và đăng nhập `ktv2` hoặc `quanly2`, mật khẩu là `DEMO_PASSWORD` trong `.env` (mặc định `matkhau-demo-2026`). Dữ liệu mẫu có đủ 6 trung tâm, 180 linh kiện, 717 dòng tồn, 360 phiếu (có `BH-000002/2025` để thử xuất kho).
+
+**Các lệnh hay dùng**
+
+| Lệnh | Dùng khi |
+|---|---|
+| `docker compose logs -f api` | Xem log backend; bước đầu tiên khi có lỗi |
+| `docker compose down` | Tắt hệ thống, giữ dữ liệu |
+| `docker compose down -v` | Tắt và xoá dữ liệu CSDL; lần `up` sau nạp lại từ đầu |
+| `docker compose exec db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'` | Mở psql trong container CSDL |
+
+**Dùng dataset đầy đủ thay cho dữ liệu mẫu:** chép 5 file CSV vào `data/`, sửa `.env` thành `LOCAL_DATA_DIR=./data`, rồi chạy `docker compose down -v` và `docker compose up -d --build`.
+
+**Cổng bị chiếm** (`port is already allocated`): đổi `APP_PORT` (mặc định 3000), `WEB_PORT` (8080) hoặc `DB_PUBLISH_PORT` (5433) trong `.env` rồi `up` lại. CSDL trong Docker mở ra cổng 5433 để không đụng PostgreSQL cài sẵn trên máy (5432).
+
+**Thử suy giảm có kiểm soát:** `docker compose stop db` thì API vẫn chạy và trả 503 kèm mã tra cứu, giao diện hiện lỗi có nút Thử lại; `docker compose start db` là dùng lại được ngay, không phải khởi động lại API.
+
+### 3.2. Cách 2: chạy trực tiếp bằng Node – backend
 
 Mở terminal tại thư mục gốc của dự án.
 
@@ -24,24 +68,22 @@ Mở terminal tại thư mục gốc của dự án.
 
 ```powershell
 cd src/backend
-npm install
+npm ci
 ```
 
 **Bước 2. Cấu hình môi trường**
 
-## Cấu hình file `.env`
-
-1. Tạo file `.env` tại thư mục gốc của project từ file mẫu `.env.example` (nếu có).
+1. Tạo file `.env` tại thư mục gốc của project từ file mẫu `.env.example`.
 
 ```powershell
 cd ../..
 Copy-Item .env.example .env
 ```
 
-2. Điền thông tin kết nối database:
-   - `DB_USER`: Tên tài khoản PostgreSQL.
+2. Điền thông tin kết nối database (giữ `DB_HOST=localhost`, `DB_PORT=5432`):
+   - `DB_USER`: Tên tài khoản PostgreSQL trên máy bạn.
    - `DB_PASSWORD`: Mật khẩu PostgreSQL thực tế.
-3. Thiết lập `SECRET_KEY` bằng một chuỗi ngẫu nhiên đủ dài để ký token. Nếu để trống, chức năng đăng nhập có thể trả về lỗi HTTP 500.
+3. Thay `SECRET_KEY` mẫu bằng một chuỗi ngẫu nhiên đủ dài để ký token. Nếu để trống, chức năng đăng nhập trả về lỗi HTTP 500.
 
    Chạy lệnh sau trong terminal để tạo khóa ngẫu nhiên:
 
@@ -60,7 +102,7 @@ Copy-Item .env.example .env
 
 **Bước 3. Chép dữ liệu mẫu**
 
-Dataset không nằm trong repo. Giải nén file `CDTN1_Mekong Mobile_Dataset Smart CRM.zip` (dataset của môn học), tạo thư mục `data/` ở gốc repo rồi chép đủ 5 file CSV vào đó: `service_centers.csv`, `parts.csv`, `part_stock.csv`, `tickets_history.csv`, `part_transactions.csv` (thư mục này không commit, xem `.gitignore`):
+Dataset đầy đủ không nằm trong repo. Muốn chạy nhanh với dữ liệu mẫu nhỏ có sẵn thì bỏ qua bước này và ở Bước 5 chạy `npm run seed` với `DATA_DIR=data-mau` trong `.env`. Dùng dataset đầy đủ: giải nén file `CDTN1_Mekong Mobile_Dataset Smart CRM.zip` (dataset của môn học), tạo thư mục `data/` ở gốc repo rồi chép đủ 5 file CSV vào đó: `service_centers.csv`, `parts.csv`, `part_stock.csv`, `tickets_history.csv`, `part_transactions.csv` (thư mục này không commit, xem `.gitignore`):
 
 ```powershell
 New-Item -ItemType Directory data
@@ -96,7 +138,7 @@ Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part
 npm start
 ```
 
-Server chạy tại `http://localhost:3000` (đổi bằng `APP_PORT`).
+Server chạy tại `http://localhost:3000` (đổi bằng `APP_PORT`). Log in ra terminal dạng JSON, mỗi dòng một sự kiện. Kiểm tra sống: `curl.exe http://localhost:3000/health`.
 
 **Gọi thử API.** Mở terminal thứ hai (terminal đầu vẫn để `npm start` chạy). Trước hết vào thư mục gốc của dự án (thư mục vừa clone về), rồi vào `src/backend`.
 
@@ -134,15 +176,15 @@ CREATE DATABASE smartcrm_test;
 npm test
 ```
 
-Kết quả đúng: `# tests 47`, `# pass 47`. Không kết nối được CSDL test thì 23 test tích hợp được bỏ qua (`# skipped 23`), 24 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực.
+Kết quả đúng: `# tests 60`, `# pass 60`. Không kết nối được CSDL test thì 25 test tích hợp được bỏ qua (`# skipped 25`), 35 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
 
-## 3b. Cài đặt và chạy giao diện
+### 3.3. Cách 2: chạy trực tiếp bằng Node – giao diện
 
-Backend phải đang chạy (Bước 6) và `.env` ở gốc có `CORS_ORIGIN=http://localhost:5173`.
+Backend phải đang chạy (Bước 6) và `.env` ở gốc có `CORS_ORIGIN=http://localhost:5173,http://localhost:5174` (đã có sẵn trong `.env.example`).
 
 ```powershell
 cd src/frontend
-npm install
+npm ci
 Copy-Item .env.example .env
 npm run dev
 ```
@@ -175,13 +217,15 @@ Luồng chính: đăng nhập → tra cứu tồn → xuất linh kiện cho phi
 
 ```text
 smartcrm-2374802010543-spare-parts-warehouse/
-├── data/                        # Dataset (CSV) dùng để nạp danh mục
+├── data/                        # Dataset đầy đủ (CSV), KHÔNG commit
+├── data-mau/                    # Dữ liệu mẫu nhỏ đi kèm repo, Docker tự nạp (xem data-mau/README.md)
 ├── docs/
 │   ├── export/                  # Hình xuất từ các sơ đồ
 │   ├── screenshots/             # Ảnh kết quả chạy buổi 8
 │   ├── ai-disclosure.md
 │   ├── architecture-thuc-te.md  # Sơ đồ kiến trúc đã hiện thực (BT2)
 │   ├── api-contract.md
+│   ├── bug-log.md               # Nhật ký lỗi đã gỡ theo bốn bước (BT3)
 │   ├── architecture.drawio
 │   ├── erd.drawio
 │   ├── srs.md
@@ -190,16 +234,18 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   └── wireframe.drawio
 ├── src/
 │   ├── backend/
-│   │   ├── controllers/         # Lớp 2 – API (vai trò "routes/" trong đề BT2, TD-16): Express Router, xác thực, ánh xạ lỗi
+│   │   ├── controllers/         # Lớp 2 – API (vai trò "routes/" trong đề BT2, TD-16): Express Router, xác thực, ánh xạ lỗi, requestId, /health
 │   │   ├── validators/          # Lớp 2 – Hợp đồng đầu vào viết bằng zod
 │   │   ├── services/            # Lớp 3 – Nghiệp vụ (QT-09, QT-14, QT-L5-01, QT-L5-02) và stock.contract.js
 │   │   ├── repositories/        # Lớp 4 – Truy cập dữ liệu: chỉ có SQL
 │   │   ├── integrations/        # Tích hợp với L2: đọc phiếu, đổi mã trạng thái sang tên có dấu
-│   │   ├── db/                  # Lớp 5 – CSDL: kết nối, migrations/ (001–003), seed/ (dữ liệu mẫu + tài khoản mẫu)
+│   │   ├── db/                  # Lớp 5 – CSDL: kết nối, wait-for-db.js, migrations/ (001–003), seed/ (dữ liệu + tài khoản mẫu)
 │   │   ├── scripts/             # make-token.js, run-tests.js
 │   │   ├── app.js               # Dựng ứng dụng Express (test dùng lại)
 │   │   ├── errors.js
+│   │   ├── logger.js            # Log JSON ra stdout, che trường nhạy cảm
 │   │   ├── index.js             # Khởi động server
+│   │   ├── Dockerfile           # Ảnh backend: hai giai đoạn, người dùng không đặc quyền, HEALTHCHECK
 │   │   ├── package-lock.json
 │   │   └── package.json
 │   └── frontend/                # React + Vite
@@ -208,10 +254,13 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │       ├── src/components/      # DataState (3 trạng thái), ErrorBox, ErrorLine, WarningBadge, PartPicker
 │       ├── src/pages/           # Một tệp một màn hình: Login, Stock, Export, Import
 │       ├── .env.example
+│       ├── Dockerfile           # Dựng giao diện rồi phục vụ bằng nginx
+│       ├── nginx.conf           # Chuyển /api sang dịch vụ api
 │       └── package.json
 ├── tests/                       # node:test – hợp đồng, validation, xác thực, tích hợp (NFR3, NFR5)
 ├── .env                         # Cấu hình cục bộ; KHÔNG commit
-├── .env.example                 # Mẫu cấu hình môi trường
+├── .env.example                 # Mẫu cấu hình môi trường, đủ mọi biến
+├── docker-compose.yml           # db · api · web, chạy bằng hai lệnh (mục 3.1)
 ├── .gitignore
 ├── BT1_2374802010543_TranHuynhMinhTuan.pdf
 └── README.md
@@ -230,11 +279,21 @@ Quy ước kiến trúc: lớp trên chỉ gọi lớp ngay dưới (controller 
 | Wireframe | [`docs/wireframe.drawio`](docs/wireframe.drawio) |
 | Hợp đồng API | [`docs/api-contract.md`](docs/api-contract.md) |
 | Nhật ký thay đổi thiết kế | [`docs/thay-doi-thiet-ke.md`](docs/thay-doi-thiet-ke.md) |
+| Nhật ký lỗi (Bug Log) | [`docs/bug-log.md`](docs/bug-log.md) |
 | Khai báo sử dụng công cụ AI | [`docs/ai-disclosure.md`](docs/ai-disclosure.md) |
 | Kiến trúc đã hiện thực (BT2) | [`docs/architecture-thuc-te.md`](docs/architecture-thuc-te.md) |
 | Hình ảnh sơ đồ đã xuất | [`docs/export/`](docs/export/) |
 
-## 6. Trạng thái hiện tại (buổi 10)
+## 6. Trạng thái hiện tại (buổi 11)
+
+Buổi 11:
+
+- [x] Đóng gói bằng Docker: `docker compose up -d --build` dựng db · api · web, thứ tự khởi động bằng healthcheck + `service_healthy`, ảnh ghim phiên bản, chạy bằng người dùng không đặc quyền (TD-18)
+- [x] Hệ thống không lên trống: dữ liệu mẫu nhỏ `data-mau/` tự nạp; `.env.example` đủ mọi biến, `.env` không có trong lịch sử git
+- [x] Log JSON ra stdout có thời điểm, requestId, ngữ cảnh; che mật khẩu, token, chuỗi kết nối; lỗi ghi log một lần ở error-handler
+- [x] Mất CSDL: API không sập, trả 503 kèm mã tra cứu trong vài giây; `GET /health` (TD-19)
+- [x] `docs/bug-log.md`: 3 lỗi đã gỡ theo bốn bước (1 Critical, 1 Major, 1 Minor), mỗi lỗi có test hồi quy
+- [x] Phép thử tự kiểm: clone vào thư mục trống → `cp .env.example .env` → `docker compose up -d --build` → db, api, web đều healthy; `down -v` rồi `up` lại ra cùng kết quả
 
 Buổi 10:
 

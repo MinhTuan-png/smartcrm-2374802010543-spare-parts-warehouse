@@ -1,0 +1,361 @@
+ticket_code,center_id,status,issue_desc
+BH-000001/2025,5,DA_PHAN_CONG,kh noi cam sac khong vao dien bi tu tuan truoc
+BH-000002/2025,2,DANG_XU_LY,cảm ứng chỗ được chỗ không đã thử khởi động lại không được
+BH-000003/2026,6,DA_DONG,khách báo máy tự tắt khi còn 30% pin mới bị 2 ngày nay
+BH-000004/2024,1,DA_DONG,khach hang phan anh camera mo len bi den man bi tu tuan truoc
+BH-000005/2025,1,HOAN_TAT,khách báo màn hình bị ám vàng một góc mới bị 2 ngày nay
+BH-000006/2026,5,DA_DONG,may bi màn hình đen không lên đã thử khởi động lại không được
+BH-000007/2026,5,DA_DONG,điểm chết trên màn hình xảy ra sau khi rơi
+BH-000008/2026,2,DA_DONG,kh nói máy bị đổ nước ngọt vào không sạc được
+BH-000009/2026,2,DA_PHAN_CONG,may bi sạc rất chậm mất cả đêm khách chưa từng sửa ở đâu
+BH-000010/2024,5,DA_DONG,máy rung liên tục không dừng bị từ tuần trước
+BH-000011/2025,3,DA_DONG,kh nói chân sạc lỏng phải giữ mới sạc được đã thử khởi động lại không được
+BH-000012/2026,2,DA_DONG,may bi chân sạc lỏng phải giữ mới sạc được đã thử khởi động lại không được
+BH-000013/2026,2,DA_DONG,khach bao may treo logo khong vao duoc he dieu hanh khach chua tung sua o dau
+BH-000014/2025,2,DA_DONG,chân sạc lỏng phải giữ mới sạc được mới bị 2 ngày nay
+BH-000015/2026,2,DANG_XU_LY,tình trạng: màn hình xuất hiện vệt mực loang xảy ra sau khi rơi
+BH-000016/2025,3,DA_DONG,tình trạng: cổng sạc bị gãy chân xảy ra sau khi rơi
+BH-000017/2026,5,DA_PHAN_CONG,TÌNH TRẠNG: PIN SỤT 20% CHỈ SAU VÀI PHÚT XẢY RA SAU KHI RƠI
+BH-000018/2026,2,DANG_XU_LY,khách báo sạc vào nhưng không nhận cáp mới bị 2 ngày nay
+BH-000019/2025,4,DA_DONG,khách báo pin nóng bất thường khi dùng đã thử khởi động lại không được
+BH-000020/2026,2,DA_DONG,KHACH BAO MAY TU KHOI DONG LAI NHIEU LAN TRONG NGAY
+BH-000021/2026,4,DA_DONG,khách báo pin nóng bất thường khi dùng máy còn bảo hành
+BH-000022/2025,1,DANG_XU_LY,khách báo màn hình bị sọc dọc bị từ tuần trước
+BH-000023/2026,4,DA_DONG,tinh trang: may treo logo khong vao duoc he dieu hanh khach chua tung sua o dau
+BH-000024/2025,6,DANG_XU_LY,MAY BI PIN SỤT 20% CHỈ SAU VÀI PHÚT
+BH-000025/2025,1,DA_DONG,khách báo pin chai chỉ còn dùng được nửa ngày đã thử khởi động lại không được
+BH-000026/2026,5,DA_DONG,khách hàng phản ánh pin nóng bất thường khi dùng mới bị 2 ngày nay
+BH-000027/2026,4,DA_DONG,may bi wifi không kết nối được sau cập nhật xảy ra sau khi rơi
+BH-000028/2026,1,DA_DONG,kh noi cong sac bi gay chan moi bi 2 ngay nay
+BH-000029/2026,6,DA_DONG,tình trạng: cắm sạc không vào điện khách chưa từng sửa ở đâu
+BH-000030/2025,6,DA_DONG,máy rung liên tục không dừng
+BH-000031/2025,4,DA_DONG,may bi ứng dụng tự thoát liên tục khách chưa từng sửa ở đâu
+BH-000032/2025,1,DA_DONG,khach bao may phong pin can man hinh da thu khoi dong lai khong duoc
+BH-000033/2025,2,DA_DONG,máy không giữ được pin qua đêm
+BH-000034/2025,4,DA_DONG,tinh trang: pin chai chi con dung duoc nua ngay may con bao hanh
+BH-000035/2026,5,DA_DONG,tinh trang: cam sac may nong bat thuong khach chua tung sua o dau
+BH-000036/2025,6,CHO_LINH_KIEN,KHÁCH BÁO MÁY TỰ KHỞI ĐỘNG LẠI NHIỀU LẦN TRONG NGÀY MÁY CÒN BẢO HÀNH
+BH-000037/2025,3,DA_DONG,kh nói máy không giữ được pin qua đêm đã thử khởi động lại không được
+BH-000038/2024,6,DA_DONG,kh nói máy không giữ được pin qua đêm xảy ra sau khi rơi
+BH-000039/2025,5,DA_DONG,KHÁCH HÀNG PHẢN ÁNH SẠC ĐẦY NHƯNG DÙNG 30 PHÚT LÀ SẬP NGUỒN XẢY RA SAU KHI RƠI
+BH-000040/2025,2,DA_DONG,kh nói điểm chết trên màn hình xảy ra sau khi rơi
+BH-000041/2025,2,DA_DONG,khách hàng phản ánh camera mở lên bị đen màn máy còn bảo hành
+BH-000042/2024,6,DA_DONG,may bi man hinh nut sau khi roi bi tu tuan truoc
+BH-000043/2025,5,DA_DONG,may bi màn hình đen không lên
+BH-000044/2026,4,DA_PHAN_CONG,may bi sạc rất chậm mất cả đêm
+BH-000045/2026,4,DA_DONG,khách báo máy vào nước màn hình loang ố
+BH-000046/2025,1,DA_PHAN_CONG,kh nói màn hình chớp tắt liên tục bị từ tuần trước
+BH-000047/2024,4,DA_DONG,may bi may bi do nuoc ngot vao khong sac duoc
+BH-000048/2026,3,DA_DONG,điểm chết trên màn hình xảy ra sau khi rơi
+BH-000049/2025,4,DA_DONG,tình trạng: màn hình bị sọc dọc xảy ra sau khi rơi
+BH-000050/2025,1,DA_DONG,khách hàng phản ánh cổng sạc bị gãy chân khách chưa từng sửa ở đâu
+BH-000051/2025,4,DANG_XU_LY,tình trạng: màn hình bị hở sáng viền dưới đã thử khởi động lại không được
+BH-000052/2025,1,DA_DONG,may bi màn hình chớp tắt liên tục máy còn bảo hành
+BH-000053/2024,3,DA_DONG,dính nước biển máy nóng và tắt đã thử khởi động lại không được
+BH-000054/2024,1,DA_DONG,khách hàng phản ánh chân sạc lỏng phải giữ mới sạc được
+BH-000055/2026,2,DA_DONG,kh nói màn hình bị sọc dọc khách chưa từng sửa ở đâu
+BH-000056/2025,5,DA_DONG,khách hàng phản ánh điểm chết trên màn hình máy còn bảo hành
+BH-000057/2024,3,DA_DONG,camera sau bị mờ như có sương xảy ra sau khi rơi
+BH-000058/2026,4,CHO_LINH_KIEN,khách hàng phản ánh máy phồng pin cấn màn hình đã thử khởi động lại không được
+BH-000059/2025,6,DA_DONG,khách hàng phản ánh máy phồng pin cấn màn hình xảy ra sau khi rơi
+BH-000060/2025,1,DA_DONG,khach hang phan anh may phong pin can man hinh moi bi 2 ngay nay
+BH-000061/2026,4,DA_DONG,may bi điểm chết trên màn hình đã thử khởi động lại không được
+BH-000062/2025,2,DA_DONG,kh noi pin sut 20% chi sau vai phut may con bao hanh
+BH-000063/2026,1,DA_DONG,kh nói máy tự tắt khi còn 30% pin
+BH-000064/2024,6,DA_DONG,tình trạng: báo pin sai phần trăm nhảy loạn mới bị 2 ngày nay
+BH-000065/2026,3,DA_DONG,máy có tiếng kêu lạ bên trong mới bị 2 ngày nay
+BH-000066/2025,1,DA_DONG,báo pin sai phần trăm nhảy loạn bị từ tuần trước
+BH-000067/2025,6,DA_DONG,may bi may bi do nuoc ngot vao khong sac duoc da thu khoi dong lai khong duoc
+BH-000068/2025,5,DA_DONG,may bi camera sau bị mờ như có sương mới bị 2 ngày nay
+BH-000069/2025,3,HOAN_TAT,khách hàng phản ánh sạc đầy nhưng dùng 30 phút là sập nguồn khách chưa từng sửa ở đâu
+BH-000070/2025,3,DA_DONG,kh noi loa ngoai re khong nghe ro may con bao hanh
+BH-000074/2026,3,CHO_LINH_KIEN,kh noi pin sut 20% chi sau vai phut xay ra sau khi roi
+BH-000075/2025,6,DA_DONG,kh nói máy tự khởi động lại nhiều lần trong ngày
+BH-000076/2025,6,DA_DONG,kh nói màn hình nứt sau khi rơi khách chưa từng sửa ở đâu
+BH-000077/2025,6,HOAN_TAT,khách hàng phản ánh cảm ứng chỗ được chỗ không xảy ra sau khi rơi
+BH-000078/2026,3,DA_DONG,khach hang phan anh may roi vao nuoc khong len nguon moi bi 2 ngay nay
+BH-000082/2026,3,DA_DONG,khách hàng phản ánh pin chai chỉ còn dùng được nửa ngày mới bị 2 ngày nay
+BH-000084/2025,5,DANG_XU_LY,tình trạng: cổng sạc bám bụi không tiếp xúc mới bị 2 ngày nay
+BH-000087/2025,1,DANG_XU_LY,điểm chết trên màn hình xảy ra sau khi rơi
+BH-000089/2025,5,HOAN_TAT,may bi báo pin sai phần trăm nhảy loạn máy còn bảo hành
+BH-000094/2024,2,DANG_XU_LY,khách báo điểm chết trên màn hình
+BH-000096/2026,2,CHO_LINH_KIEN,tình trạng: máy treo logo không vào được hệ điều hành mới bị 2 ngày nay
+BH-000097/2024,6,DANG_XU_LY,khach bao pin nong bat thuong khi dung khach chua tung sua o dau
+BH-000101/2025,5,DA_DONG,may bi pin chai chỉ còn dùng được nửa ngày
+BH-000102/2025,2,DANG_XU_LY,cam ung cho duoc cho khong may con bao hanh
+BH-000106/2025,4,CHO_LINH_KIEN,khách hàng phản ánh nút nguồn bị kẹt
+BH-000109/2025,2,HOAN_TAT,khách hàng phản ánh màn hình bị sọc dọc xảy ra sau khi rơi
+BH-000113/2026,4,DA_PHAN_CONG,khách báo màn hình chớp tắt liên tục đã thử khởi động lại không được
+BH-000122/2026,5,DANG_XU_LY,pin sut 20% chi sau vai phut xay ra sau khi roi
+BH-000123/2025,3,CHO_LINH_KIEN,tình trạng: máy có tiếng kêu lạ bên trong
+BH-000133/2025,2,DANG_XU_LY,may bi ứng dụng tự thoát liên tục đã thử khởi động lại không được
+BH-000135/2025,1,CHO_LINH_KIEN,may bi cắm sạc không vào điện
+BH-000137/2025,3,DANG_XU_LY,khach bao may phong pin can man hinh khach chua tung sua o dau
+BH-000145/2025,5,CHO_LINH_KIEN,MAY BI KHÔNG CÀI ĐƯỢC ỨNG DỤNG BÁO LỖI XẢY RA SAU KHI RƠI
+BH-000153/2026,1,DA_PHAN_CONG,kh noi pin nong bat thuong khi dung bi tu tuan truoc
+BH-000160/2025,2,DANG_XU_LY,kh nói máy phồng pin cấn màn hình đã thử khởi động lại không được
+BH-000164/2024,1,CHO_LINH_KIEN,tình trạng: màn hình chớp tắt liên tục bị từ tuần trước
+BH-000166/2024,3,DA_PHAN_CONG,khách báo cảm ứng loạn không bấm được máy còn bảo hành
+BH-000178/2024,1,DANG_XU_LY,nút nguồn bị kẹt bị từ tuần trước
+BH-000187/2025,3,DANG_XU_LY,khach hang phan anh may treo logo khong vao duoc he dieu hanh
+BH-000194/2025,2,DA_PHAN_CONG,màn hình chớp tắt liên tục
+BH-000202/2025,6,DANG_XU_LY,máy tự tắt khi còn 30% pin máy còn bảo hành
+BH-000203/2025,2,DANG_XU_LY,CHÂN SẠC LỎNG PHẢI GIỮ MỚI SẠC ĐƯỢC MÁY CÒN BẢO HÀNH
+BH-000207/2025,1,DA_PHAN_CONG,khách hàng phản ánh wifi không kết nối được sau cập nhật đã thử khởi động lại không được
+BH-000210/2026,1,DA_PHAN_CONG,khách báo máy treo logo không vào được hệ điều hành máy còn bảo hành
+BH-000212/2026,6,DA_PHAN_CONG,may bi may roi vao nuoc khong len nguon khach chua tung sua o dau
+BH-000214/2024,6,CHO_LINH_KIEN,tình trạng: màn hình đen không lên bị từ tuần trước
+BH-000215/2025,5,CHO_LINH_KIEN,tình trạng: không cài được ứng dụng báo lỗi xảy ra sau khi rơi
+BH-000220/2025,1,CHO_LINH_KIEN,may bi pin sụt 20% chỉ sau vài phút máy còn bảo hành
+BH-000221/2025,5,DANG_XU_LY,khach bao pin sut 20% chi sau vai phut
+BH-000226/2026,1,DA_PHAN_CONG,may bi chan sac long phai giu moi sac duoc da thu khoi dong lai khong duoc
+BH-000228/2026,4,HOAN_TAT,khách hàng phản ánh màn hình xuất hiện vệt mực loang đã thử khởi động lại không được
+BH-000231/2025,6,DANG_XU_LY,may bi màn hình bị sọc dọc bị từ tuần trước
+BH-000237/2026,4,CHO_LINH_KIEN,MAY BI SẠC RẤT CHẬM MẤT CẢ ĐÊM KHÁCH CHƯA TỪNG SỬA Ở ĐÂU
+BH-000249/2025,5,DANG_XU_LY,khách hàng phản ánh báo pin sai phần trăm nhảy loạn xảy ra sau khi rơi
+BH-000266/2025,5,DANG_XU_LY,tình trạng: cổng sạc bị gãy chân đã thử khởi động lại không được
+BH-000279/2025,2,CHO_LINH_KIEN,tình trạng: điểm chết trên màn hình đã thử khởi động lại không được
+BH-000288/2025,2,DANG_XU_LY,máy không giữ được pin qua đêm xảy ra sau khi rơi
+BH-000296/2026,1,DANG_XU_LY,cảm ứng chỗ được chỗ không đã thử khởi động lại không được
+BH-000299/2026,5,DANG_XU_LY,may bi cắm sạc không vào điện
+BH-000308/2026,3,DANG_XU_LY,may bi chân sạc lỏng phải giữ mới sạc được máy còn bảo hành
+BH-000313/2025,2,DANG_XU_LY,khách báo pin nóng bất thường khi dùng khách chưa từng sửa ở đâu
+BH-000319/2025,6,HOAN_TAT,KHÁCH HÀNG PHẢN ÁNH CẢM ỨNG CHỖ ĐƯỢC CHỖ KHÔNG ĐÃ THỬ KHỞI ĐỘNG LẠI KHÔNG ĐƯỢC
+BH-000320/2026,1,CHO_LINH_KIEN,tình trạng: màn hình bị ám vàng một góc mới bị 2 ngày nay
+BH-000327/2025,5,DA_PHAN_CONG,cắm sạc máy nóng bất thường xảy ra sau khi rơi
+BH-000348/2025,5,DANG_XU_LY,kh noi man hinh xuat hien vet muc loang da thu khoi dong lai khong duoc
+BH-000351/2025,4,HOAN_TAT,tình trạng: cắm sạc không vào điện khách chưa từng sửa ở đâu
+BH-000357/2025,1,DANG_XU_LY,khach bao man hinh nut sau khi roi
+BH-000359/2025,5,DA_PHAN_CONG,báo pin sai phần trăm nhảy loạn
+BH-000376/2026,3,HOAN_TAT,kh nói cảm ứng loạn không bấm được bị từ tuần trước
+BH-000381/2025,1,HOAN_TAT,khách báo quên mật khẩu không mở được máy mới bị 2 ngày nay
+BH-000382/2024,3,DA_PHAN_CONG,khach bao may co tieng keu la ben trong xay ra sau khi roi
+BH-000385/2025,1,DANG_XU_LY,MAY BI MÀN HÌNH BỊ ÁM VÀNG MỘT GÓC MỚI BỊ 2 NGÀY NAY
+BH-000401/2025,1,DANG_XU_LY,khách hàng phản ánh cắm sạc máy nóng bất thường mới bị 2 ngày nay
+BH-000413/2025,3,CHO_LINH_KIEN,KH NOI PIN TUT RAT NHANH DUNG 2 TIENG DA HET MOI BI 2 NGAY NAY
+BH-000414/2025,4,CHO_LINH_KIEN,khách hàng phản ánh cảm ứng chỗ được chỗ không xảy ra sau khi rơi
+BH-000428/2024,5,DANG_XU_LY,màn hình bị sọc dọc mới bị 2 ngày nay
+BH-000429/2025,6,DA_PHAN_CONG,kh nói báo pin sai phần trăm nhảy loạn máy còn bảo hành
+BH-000430/2026,3,DA_PHAN_CONG,khách hàng phản ánh wifi không kết nối được sau cập nhật bị từ tuần trước
+BH-000432/2025,6,DANG_XU_LY,máy rơi vào nước không lên nguồn xảy ra sau khi rơi
+BH-000437/2024,4,DANG_XU_LY,kh noi may tu khoi dong lai nhieu lan trong ngay moi bi 2 ngay nay
+BH-000449/2025,6,CHO_LINH_KIEN,may bi cong sac bi gay chan khach chua tung sua o dau
+BH-000450/2025,5,CHO_LINH_KIEN,cam ung cho duoc cho khong may con bao hanh
+BH-000456/2026,3,HOAN_TAT,kh nói màn hình bị hở sáng viền dưới mới bị 2 ngày nay
+BH-000457/2025,6,CHO_LINH_KIEN,tình trạng: cắm sạc máy nóng bất thường xảy ra sau khi rơi
+BH-000462/2026,1,DANG_XU_LY,kh nói cổng sạc bám bụi không tiếp xúc đã thử khởi động lại không được
+BH-000472/2025,2,CHO_LINH_KIEN,khach bao man hinh nut sau khi roi bi tu tuan truoc
+BH-000477/2025,4,CHO_LINH_KIEN,khách báo máy vào nước màn hình loang ố khách chưa từng sửa ở đâu
+BH-000484/2025,6,CHO_LINH_KIEN,may bi pin chai chỉ còn dùng được nửa ngày xảy ra sau khi rơi
+BH-000488/2026,6,DANG_XU_LY,may bi máy treo logo không vào được hệ điều hành khách chưa từng sửa ở đâu
+BH-000497/2025,4,DANG_XU_LY,KH NÓI PIN SỤT 20% CHỈ SAU VÀI PHÚT MÁY CÒN BẢO HÀNH
+BH-000500/2026,2,DA_PHAN_CONG,màn hình xuất hiện vệt mực loang máy còn bảo hành
+BH-000503/2025,3,DANG_XU_LY,may bi máy vào nước màn hình loang ố bị từ tuần trước
+BH-000504/2026,6,DANG_XU_LY,KHACH BAO CAMERA SAU BI MO NHU CO SUONG MAY CON BAO HANH
+BH-000514/2026,1,DANG_XU_LY,may bi pin chai chi con dung duoc nua ngay bi tu tuan truoc
+BH-000520/2025,6,DANG_XU_LY,khách hàng phản ánh sạc vào nhưng không nhận cáp máy còn bảo hành
+BH-000535/2026,3,DA_PHAN_CONG,khách hàng phản ánh màn hình đen không lên bị từ tuần trước
+BH-000561/2025,1,DANG_XU_LY,khach hang phan anh may phong pin can man hinh moi bi 2 ngay nay
+BH-000567/2026,1,DANG_XU_LY,man hinh bi soc doc may con bao hanh
+BH-000572/2026,2,HOAN_TAT,màn hình bị ám vàng một góc mới bị 2 ngày nay
+BH-000582/2025,6,CHO_LINH_KIEN,tình trạng: màn hình nứt sau khi rơi bị từ tuần trước
+BH-000583/2026,3,DANG_XU_LY,may bi màn hình bị hở sáng viền dưới mới bị 2 ngày nay
+BH-000590/2025,4,DANG_XU_LY,tình trạng: rơi bồn rửa máy chập chờn
+BH-000591/2026,5,DA_PHAN_CONG,may bi máy có tiếng kêu lạ bên trong mới bị 2 ngày nay
+BH-000593/2025,6,DANG_XU_LY,kh nói màn hình bị sọc dọc khách chưa từng sửa ở đâu
+BH-000597/2026,2,CHO_LINH_KIEN,khách báo sạc vào nhưng không nhận cáp máy còn bảo hành
+BH-000598/2025,6,DA_PHAN_CONG,tình trạng: máy tự tắt khi còn 30% pin
+BH-000599/2025,1,DANG_XU_LY,khach bao ung dung tu thoat lien tuc bi tu tuan truoc
+BH-000601/2025,5,HOAN_TAT,màn hình xuất hiện vệt mực loang mới bị 2 ngày nay
+BH-000604/2026,6,HOAN_TAT,khách báo máy chạy chậm giật lag sau khi cập nhật khách chưa từng sửa ở đâu
+BH-000608/2025,5,DANG_XU_LY,khách báo chân sạc lỏng phải giữ mới sạc được mới bị 2 ngày nay
+BH-000609/2024,6,CHO_LINH_KIEN,may bi cắm sạc không vào điện xảy ra sau khi rơi
+BH-000611/2025,3,DANG_XU_LY,camera sau bị mờ như có sương mới bị 2 ngày nay
+BH-000619/2025,4,CHO_LINH_KIEN,khách hàng phản ánh máy không giữ được pin qua đêm xảy ra sau khi rơi
+BH-000622/2025,4,DA_PHAN_CONG,wifi không kết nối được sau cập nhật xảy ra sau khi rơi
+BH-000625/2025,4,CHO_LINH_KIEN,KHACH BAO MAY TREO LOGO KHONG VAO DUOC HE DIEU HANH KHACH CHUA TUNG SUA O DAU
+BH-000626/2025,4,DANG_XU_LY,tình trạng: pin tụt rất nhanh dùng 2 tiếng đã hết đã thử khởi động lại không được
+BH-000627/2024,2,DANG_XU_LY,cong sac bam bui khong tiep xuc may con bao hanh
+BH-000637/2026,5,HOAN_TAT,tinh trang: dien thoai dinh nuoc mua loa bi re
+BH-000656/2025,6,DANG_XU_LY,kh nói cắm sạc không vào điện xảy ra sau khi rơi
+BH-000685/2026,1,CHO_LINH_KIEN,may bi máy treo logo không vào được hệ điều hành khách chưa từng sửa ở đâu
+BH-000689/2025,5,CHO_LINH_KIEN,pin chai chỉ còn dùng được nửa ngày khách chưa từng sửa ở đâu
+BH-000691/2025,5,HOAN_TAT,khách báo máy không giữ được pin qua đêm bị từ tuần trước
+BH-000693/2025,6,DANG_XU_LY,kh nói cắm sạc máy nóng bất thường xảy ra sau khi rơi
+BH-000697/2024,6,DANG_XU_LY,may bi rơi bồn rửa máy chập chờn
+BH-000698/2025,2,CHO_LINH_KIEN,tình trạng: cổng sạc bám bụi không tiếp xúc đã thử khởi động lại không được
+BH-000701/2025,2,CHO_LINH_KIEN,khách hàng phản ánh máy rơi vào nước không lên nguồn mới bị 2 ngày nay
+BH-000715/2025,4,DANG_XU_LY,kh nói điện thoại dính nước mưa loa bị rè
+BH-000716/2025,3,DANG_XU_LY,kh nói máy rơi vào nước không lên nguồn mới bị 2 ngày nay
+BH-000717/2025,2,CHO_LINH_KIEN,tình trạng: cảm ứng loạn không bấm được bị từ tuần trước
+BH-000719/2025,2,DANG_XU_LY,may bi máy tự khởi động lại nhiều lần trong ngày
+BH-000720/2025,1,DANG_XU_LY,tình trạng: cắm sạc máy nóng bất thường xảy ra sau khi rơi
+BH-000724/2026,2,DANG_XU_LY,kh nói pin nóng bất thường khi dùng mới bị 2 ngày nay
+BH-000726/2025,5,HOAN_TAT,khach bao man hinh bi am vang mot goc khach chua tung sua o dau
+BH-000729/2024,5,CHO_LINH_KIEN,tình trạng: cảm ứng chỗ được chỗ không đã thử khởi động lại không được
+BH-000732/2024,4,HOAN_TAT,KH NOI CAM UNG LOAN KHONG BAM DUOC KHACH CHUA TUNG SUA O DAU
+BH-000744/2026,6,HOAN_TAT,TÌNH TRẠNG: PIN NÓNG BẤT THƯỜNG KHI DÙNG XẢY RA SAU KHI RƠI
+BH-000749/2025,4,HOAN_TAT,khách báo cảm ứng loạn không bấm được xảy ra sau khi rơi
+BH-000763/2024,2,DA_PHAN_CONG,khách hàng phản ánh cổng sạc bị gãy chân đã thử khởi động lại không được
+BH-000771/2024,1,DANG_XU_LY,may bi nút nguồn bị kẹt xảy ra sau khi rơi
+BH-000778/2025,4,DANG_XU_LY,kh nói màn hình bị hở sáng viền dưới mới bị 2 ngày nay
+BH-000781/2025,4,CHO_LINH_KIEN,may bi dính nước biển máy nóng và tắt xảy ra sau khi rơi
+BH-000783/2024,2,CHO_LINH_KIEN,may bi màn hình bị hở sáng viền dưới đã thử khởi động lại không được
+BH-000784/2025,2,DANG_XU_LY,máy chạy chậm giật lag sau khi cập nhật xảy ra sau khi rơi
+BH-000787/2026,4,DANG_XU_LY,khach bao sac day nhung dung 30 phut la sap nguon may con bao hanh
+BH-000788/2024,4,HOAN_TAT,kh noi cam sac may nong bat thuong bi tu tuan truoc
+BH-000791/2025,6,HOAN_TAT,KH NÓI MÀN HÌNH BỊ ÁM VÀNG MỘT GÓC
+BH-000795/2025,2,CHO_LINH_KIEN,may bi điểm chết trên màn hình đã thử khởi động lại không được
+BH-000798/2025,3,CHO_LINH_KIEN,may bi màn hình xuất hiện vệt mực loang máy còn bảo hành
+BH-000810/2025,4,CHO_LINH_KIEN,khách báo màn hình chớp tắt liên tục xảy ra sau khi rơi
+BH-000841/2026,3,CHO_LINH_KIEN,khach bao may chay cham giat lag sau khi cap nhat bi tu tuan truoc
+BH-000861/2026,3,CHO_LINH_KIEN,khách hàng phản ánh dính nước biển máy nóng và tắt mới bị 2 ngày nay
+BH-000872/2024,3,CHO_LINH_KIEN,khách hàng phản ánh màn hình chớp tắt liên tục xảy ra sau khi rơi
+BH-000878/2024,2,CHO_LINH_KIEN,kh noi dinh nuoc bien may nong va tat khach chua tung sua o dau
+BH-000879/2025,5,DANG_XU_LY,kh nói dính nước biển máy nóng và tắt bị từ tuần trước
+BH-000881/2025,4,DANG_XU_LY,tình trạng: màn hình bị sọc dọc máy còn bảo hành
+BH-000902/2025,5,CHO_LINH_KIEN,tinh trang: camera mo len bi den man xay ra sau khi roi
+BH-000916/2026,1,DANG_XU_LY,khách báo máy phồng pin cấn màn hình xảy ra sau khi rơi
+BH-000927/2025,3,CHO_LINH_KIEN,may bi máy chạy chậm giật lag sau khi cập nhật đã thử khởi động lại không được
+BH-000963/2024,2,CHO_LINH_KIEN,khách báo màn hình đen không lên
+BH-000982/2025,3,DANG_XU_LY,khách hàng phản ánh cảm ứng chỗ được chỗ không khách chưa từng sửa ở đâu
+BH-001003/2026,3,HOAN_TAT,kh nói pin sụt 20% chỉ sau vài phút xảy ra sau khi rơi
+BH-001014/2026,2,DANG_XU_LY,tình trạng: rơi bồn rửa máy chập chờn máy còn bảo hành
+BH-001017/2025,6,DANG_XU_LY,kh nói camera mở lên bị đen màn bị từ tuần trước
+BH-001024/2026,1,DANG_XU_LY,may bi chân sạc lỏng phải giữ mới sạc được máy còn bảo hành
+BH-001037/2026,4,DANG_XU_LY,pin tụt rất nhanh dùng 2 tiếng đã hết mới bị 2 ngày nay
+BH-001038/2026,3,DA_PHAN_CONG,may bi sạc vào nhưng không nhận cáp máy còn bảo hành
+BH-001045/2025,2,DA_PHAN_CONG,khach bao man hinh chop tat lien tuc bi tu tuan truoc
+BH-001047/2025,1,HOAN_TAT,PIN TỤT RẤT NHANH DÙNG 2 TIẾNG ĐÃ HẾT BỊ TỪ TUẦN TRƯỚC
+BH-001049/2026,3,CHO_LINH_KIEN,tình trạng: mic gọi điện đối phương không nghe được mới bị 2 ngày nay
+BH-001051/2026,4,CHO_LINH_KIEN,khách hàng phản ánh màn hình nứt sau khi rơi mới bị 2 ngày nay
+BH-001056/2025,4,DA_PHAN_CONG,khách hàng phản ánh cắm sạc không vào điện máy còn bảo hành
+BH-001061/2026,4,DA_PHAN_CONG,khách hàng phản ánh sạc rất chậm mất cả đêm khách chưa từng sửa ở đâu
+BH-001063/2026,6,DANG_XU_LY,kh nói quên mật khẩu không mở được máy mới bị 2 ngày nay
+BH-001072/2025,6,DANG_XU_LY,khách báo màn hình đen không lên đã thử khởi động lại không được
+BH-001076/2025,1,CHO_LINH_KIEN,pin tụt rất nhanh dùng 2 tiếng đã hết bị từ tuần trước
+BH-001078/2025,5,CHO_LINH_KIEN,may bi màn hình bị sọc dọc mới bị 2 ngày nay
+BH-001085/2025,4,CHO_LINH_KIEN,khách hàng phản ánh máy tự khởi động lại nhiều lần trong ngày xảy ra sau khi rơi
+BH-001086/2025,1,DANG_XU_LY,may bi màn hình đen không lên máy còn bảo hành
+BH-001097/2025,1,CHO_LINH_KIEN,kh nói wifi không kết nối được sau cập nhật máy còn bảo hành
+BH-001098/2026,1,CHO_LINH_KIEN,khach hang phan anh wifi khong ket noi duoc sau cap nhat da thu khoi dong lai khong duoc
+BH-001105/2025,1,DANG_XU_LY,may bi màn hình bị sọc dọc xảy ra sau khi rơi
+BH-001108/2024,2,DANG_XU_LY,kh noi man hinh bi am vang mot goc
+BH-001116/2025,2,CHO_LINH_KIEN,khách hàng phản ánh cổng sạc bị gãy chân xảy ra sau khi rơi
+BH-001126/2025,1,DANG_XU_LY,tình trạng: pin tụt rất nhanh dùng 2 tiếng đã hết xảy ra sau khi rơi
+BH-001131/2024,3,DANG_XU_LY,tình trạng: cắm sạc máy nóng bất thường mới bị 2 ngày nay
+BH-001134/2026,1,HOAN_TAT,tinh trang: bao pin sai phan tram nhay loan da thu khoi dong lai khong duoc
+BH-001138/2024,1,DANG_XU_LY,KH NÓI CẮM SẠC KHÔNG VÀO ĐIỆN MÁY CÒN BẢO HÀNH
+BH-001189/2025,3,DANG_XU_LY,màn hình đen không lên khách chưa từng sửa ở đâu
+BH-001193/2026,4,CHO_LINH_KIEN,cảm ứng chỗ được chỗ không mới bị 2 ngày nay
+BH-001195/2026,6,CHO_LINH_KIEN,kh noi cam ung loan khong bam duoc da thu khoi dong lai khong duoc
+BH-001197/2026,6,CHO_LINH_KIEN,tình trạng: sạc đầy nhưng dùng 30 phút là sập nguồn đã thử khởi động lại không được
+BH-001210/2024,3,CHO_LINH_KIEN,pin sụt 20% chỉ sau vài phút
+BH-001211/2025,4,CHO_LINH_KIEN,khách báo máy phồng pin cấn màn hình xảy ra sau khi rơi
+BH-001221/2026,5,CHO_LINH_KIEN,khách hàng phản ánh màn hình đen không lên bị từ tuần trước
+BH-001226/2025,2,DANG_XU_LY,may bi cong sac bam bui khong tiep xuc moi bi 2 ngay nay
+BH-001227/2025,2,HOAN_TAT,tình trạng: quên mật khẩu không mở được máy khách chưa từng sửa ở đâu
+BH-001231/2025,1,CHO_LINH_KIEN,khách báo sạc rất chậm mất cả đêm
+BH-001232/2026,3,HOAN_TAT,may bi điểm chết trên màn hình mới bị 2 ngày nay
+BH-001234/2025,1,CHO_LINH_KIEN,khách hàng phản ánh cảm ứng loạn không bấm được đã thử khởi động lại không được
+BH-001237/2025,2,DANG_XU_LY,may bi màn hình chớp tắt liên tục xảy ra sau khi rơi
+BH-001240/2025,4,DANG_XU_LY,tinh trang: chan sac long phai giu moi sac duoc may con bao hanh
+BH-001244/2025,6,CHO_LINH_KIEN,may bi màn hình bị sọc dọc bị từ tuần trước
+BH-001245/2026,5,DANG_XU_LY,kh nói chân sạc lỏng phải giữ mới sạc được mới bị 2 ngày nay
+BH-001246/2025,6,DA_PHAN_CONG,khách báo pin nóng bất thường khi dùng máy còn bảo hành
+BH-001252/2024,4,DANG_XU_LY,khách báo máy treo logo không vào được hệ điều hành đã thử khởi động lại không được
+BH-001253/2024,6,DANG_XU_LY,may bi máy phồng pin cấn màn hình
+BH-001259/2026,5,DANG_XU_LY,tình trạng: màn hình bị ám vàng một góc xảy ra sau khi rơi
+BH-001272/2025,3,DANG_XU_LY,MAY BI BAO PIN SAI PHAN TRAM NHAY LOAN XAY RA SAU KHI ROI
+BH-001281/2025,3,CHO_LINH_KIEN,khách báo pin chai chỉ còn dùng được nửa ngày khách chưa từng sửa ở đâu
+BH-001284/2026,3,DANG_XU_LY,tinh trang: man hinh den khong len may con bao hanh
+BH-001288/2026,4,DANG_XU_LY,kh nói màn hình bị sọc dọc khách chưa từng sửa ở đâu
+BH-001296/2024,4,CHO_LINH_KIEN,may bi do nuoc ngot vao khong sac duoc xay ra sau khi roi
+BH-001303/2025,2,DANG_XU_LY,khách báo máy treo logo không vào được hệ điều hành mới bị 2 ngày nay
+BH-001318/2025,5,DANG_XU_LY,kh nói cắm sạc máy nóng bất thường xảy ra sau khi rơi
+BH-001324/2025,1,CHO_LINH_KIEN,màn hình bị ám vàng một góc
+BH-001329/2025,2,DANG_XU_LY,may bi điểm chết trên màn hình khách chưa từng sửa ở đâu
+BH-001334/2025,2,CHO_LINH_KIEN,kh nói máy vào nước màn hình loang ố bị từ tuần trước
+BH-001338/2024,1,HOAN_TAT,khách hàng phản ánh màn hình bị ám vàng một góc khách chưa từng sửa ở đâu
+BH-001340/2025,1,DANG_XU_LY,may bi không nhận sim xảy ra sau khi rơi
+BH-001353/2025,2,HOAN_TAT,kh nói màn hình xuất hiện vệt mực loang mới bị 2 ngày nay
+BH-001362/2025,1,DANG_XU_LY,khách báo sạc rất chậm mất cả đêm
+BH-001409/2025,6,DANG_XU_LY,KHÁCH BÁO PIN TỤT RẤT NHANH DÙNG 2 TIẾNG ĐÃ HẾT MÁY CÒN BẢO HÀNH
+BH-001411/2026,2,CHO_LINH_KIEN,may bi màn hình đen không lên máy còn bảo hành
+BH-001423/2025,5,CHO_LINH_KIEN,khach bao man hinh nut sau khi roi
+BH-001424/2026,4,DANG_XU_LY,máy bị đổ nước ngọt vào không sạc được xảy ra sau khi rơi
+BH-001450/2025,5,CHO_LINH_KIEN,tình trạng: máy phồng pin cấn màn hình bị từ tuần trước
+BH-001460/2025,3,DANG_XU_LY,KHÁCH BÁO MÁY PHỒNG PIN CẤN MÀN HÌNH KHÁCH CHƯA TỪNG SỬA Ở ĐÂU
+BH-001465/2026,5,DANG_XU_LY,kh noi may phong pin can man hinh
+BH-001470/2026,5,DANG_XU_LY,khách hàng phản ánh máy rơi vào nước không lên nguồn máy còn bảo hành
+BH-001472/2026,6,DA_PHAN_CONG,kh noi man hinh bi am vang mot goc xay ra sau khi roi
+BH-001487/2024,2,CHO_LINH_KIEN,kh nói quên mật khẩu không mở được máy khách chưa từng sửa ở đâu
+BH-001510/2025,4,DANG_XU_LY,khách báo cảm ứng loạn không bấm được khách chưa từng sửa ở đâu
+BH-001515/2026,5,DANG_XU_LY,cắm sạc báo lỗi phụ kiện máy còn bảo hành
+BH-001516/2026,1,CHO_LINH_KIEN,khách hàng phản ánh sạc đầy nhưng dùng 30 phút là sập nguồn
+BH-001519/2026,3,CHO_LINH_KIEN,kh nói máy không giữ được pin qua đêm máy còn bảo hành
+BH-001522/2025,2,DANG_XU_LY,KHÁCH HÀNG PHẢN ÁNH ỨNG DỤNG TỰ THOÁT LIÊN TỤC XẢY RA SAU KHI RƠI
+BH-001530/2024,5,CHO_LINH_KIEN,may bi ung dung tu thoat lien tuc da thu khoi dong lai khong duoc
+BH-001531/2026,1,CHO_LINH_KIEN,khách báo pin sụt 20% chỉ sau vài phút máy còn bảo hành
+BH-001540/2025,2,HOAN_TAT,may bi dinh nuoc bien may nong va tat bi tu tuan truoc
+BH-001541/2026,6,DANG_XU_LY,dính nước biển máy nóng và tắt bị từ tuần trước
+BH-001543/2025,3,CHO_LINH_KIEN,máy có tiếng kêu lạ bên trong xảy ra sau khi rơi
+BH-001549/2024,6,CHO_LINH_KIEN,kh nói pin sụt 20% chỉ sau vài phút khách chưa từng sửa ở đâu
+BH-001552/2026,4,DANG_XU_LY,kh nói màn hình đen không lên
+BH-001558/2025,2,DANG_XU_LY,khách hàng phản ánh màn hình nứt sau khi rơi khách chưa từng sửa ở đâu
+BH-001561/2025,2,DANG_XU_LY,khách báo pin nóng bất thường khi dùng mới bị 2 ngày nay
+BH-001562/2026,2,DANG_XU_LY,kh nói pin nóng bất thường khi dùng
+BH-001565/2025,4,CHO_LINH_KIEN,màn hình chớp tắt liên tục máy còn bảo hành
+BH-001568/2025,3,CHO_LINH_KIEN,khách hàng phản ánh báo pin sai phần trăm nhảy loạn
+BH-001582/2026,5,DANG_XU_LY,KHÁCH BÁO CHÂN SẠC LỎNG PHẢI GIỮ MỚI SẠC ĐƯỢC BỊ TỪ TUẦN TRƯỚC
+BH-001584/2025,3,CHO_LINH_KIEN,camera mở lên bị đen màn máy còn bảo hành
+BH-001611/2026,5,DANG_XU_LY,kh noi ung dung tu thoat lien tuc bi tu tuan truoc
+BH-001612/2025,3,DANG_XU_LY,cổng sạc bám bụi không tiếp xúc mới bị 2 ngày nay
+BH-001655/2024,3,DANG_XU_LY,khách hàng phản ánh sạc đầy nhưng dùng 30 phút là sập nguồn xảy ra sau khi rơi
+BH-001659/2025,4,DANG_XU_LY,TÌNH TRẠNG: DÍNH NƯỚC BIỂN MÁY NÓNG VÀ TẮT ĐÃ THỬ KHỞI ĐỘNG LẠI KHÔNG ĐƯỢC
+BH-001672/2025,5,CHO_LINH_KIEN,tình trạng: cảm ứng loạn không bấm được bị từ tuần trước
+BH-001676/2025,6,CHO_LINH_KIEN,sạc vào nhưng không nhận cáp mới bị 2 ngày nay
+BH-001687/2026,5,CHO_LINH_KIEN,TINH TRANG: CONG SAC BI GAY CHAN DA THU KHOI DONG LAI KHONG DUOC
+BH-001692/2025,2,DANG_XU_LY,kh nói ứng dụng tự thoát liên tục xảy ra sau khi rơi
+BH-001743/2025,4,DANG_XU_LY,khách hàng phản ánh máy chạy chậm giật lag sau khi cập nhật mới bị 2 ngày nay
+BH-001773/2025,1,DANG_XU_LY,tình trạng: điểm chết trên màn hình đã thử khởi động lại không được
+BH-001782/2026,6,DANG_XU_LY,tình trạng: máy phồng pin cấn màn hình mới bị 2 ngày nay
+BH-001788/2025,1,DANG_XU_LY,TÌNH TRẠNG: MÀN HÌNH BỊ ÁM VÀNG MỘT GÓC MÁY CÒN BẢO HÀNH
+BH-001794/2025,1,CHO_LINH_KIEN,khách báo điện thoại dính nước mưa loa bị rè
+BH-001808/2026,6,DANG_XU_LY,kh nói sạc đầy nhưng dùng 30 phút là sập nguồn khách chưa từng sửa ở đâu
+BH-001819/2026,6,CHO_LINH_KIEN,may bi cắm sạc không vào điện máy còn bảo hành
+BH-001824/2026,5,DANG_XU_LY,kh nói pin nóng bất thường khi dùng bị từ tuần trước
+BH-001830/2026,6,DANG_XU_LY,khách hàng phản ánh không cài được ứng dụng báo lỗi đã thử khởi động lại không được
+BH-001838/2025,5,CHO_LINH_KIEN,kh nói máy chạy chậm giật lag sau khi cập nhật
+BH-001888/2025,6,DANG_XU_LY,khách báo màn hình nứt sau khi rơi
+BH-001914/2026,5,DANG_XU_LY,báo pin sai phần trăm nhảy loạn bị từ tuần trước
+BH-001916/2025,1,DANG_XU_LY,MÀN HÌNH BỊ HỞ SÁNG VIỀN DƯỚI MỚI BỊ 2 NGÀY NAY
+BH-001928/2025,6,DANG_XU_LY,may co tieng keu la ben trong khach chua tung sua o dau
+BH-001935/2026,4,DANG_XU_LY,tình trạng: màn hình bị sọc dọc xảy ra sau khi rơi
+BH-001938/2025,3,DANG_XU_LY,kh nói màn hình nứt sau khi rơi khách chưa từng sửa ở đâu
+BH-001948/2025,5,DANG_XU_LY,may bi màn hình bị hở sáng viền dưới đã thử khởi động lại không được
+BH-001966/2025,6,CHO_LINH_KIEN,pin tụt rất nhanh dùng 2 tiếng đã hết bị từ tuần trước
+BH-001984/2026,6,DANG_XU_LY,khách báo máy vào nước màn hình loang ố bị từ tuần trước
+BH-002022/2026,5,CHO_LINH_KIEN,khách hàng phản ánh cảm ứng chỗ được chỗ không
+BH-002033/2025,5,DANG_XU_LY,pin tụt rất nhanh dùng 2 tiếng đã hết khách chưa từng sửa ở đâu
+BH-002037/2025,4,DANG_XU_LY,tinh trang: pin nong bat thuong khi dung da thu khoi dong lai khong duoc
+BH-002042/2025,3,DANG_XU_LY,kh nói máy vào nước màn hình loang ố đã thử khởi động lại không được
+BH-002060/2026,6,CHO_LINH_KIEN,pin tụt rất nhanh dùng 2 tiếng đã hết khách chưa từng sửa ở đâu
+BH-002142/2026,3,DANG_XU_LY,may bi màn hình xuất hiện vệt mực loang mới bị 2 ngày nay
+BH-002167/2025,6,DANG_XU_LY,khách hàng phản ánh màn hình bị sọc dọc xảy ra sau khi rơi
+BH-002247/2025,3,DANG_XU_LY,khách báo màn hình bị sọc dọc bị từ tuần trước
+BH-002287/2026,3,DANG_XU_LY,khach bao pin sut 20% chi sau vai phut bi tu tuan truoc
+BH-002296/2025,5,DANG_XU_LY,máy phồng pin cấn màn hình mới bị 2 ngày nay
+BH-002313/2025,5,DANG_XU_LY,khách báo màn hình bị hở sáng viền dưới đã thử khởi động lại không được
+BH-002349/2025,3,DANG_XU_LY,may bi màn hình bị sọc dọc mới bị 2 ngày nay
+BH-002358/2025,4,DANG_XU_LY,pin nóng bất thường khi dùng máy còn bảo hành
+BH-002361/2024,4,DANG_XU_LY,may bi sạc đầy nhưng dùng 30 phút là sập nguồn
+BH-002367/2025,3,DANG_XU_LY,tình trạng: màn hình chớp tắt liên tục xảy ra sau khi rơi
+BH-002396/2025,4,DANG_XU_LY,KHACH BAO CAMERA SAU BI MO NHU CO SUONG MAY CON BAO HANH
+BH-002404/2024,1,CHO_LINH_KIEN,khách báo máy có tiếng kêu lạ bên trong
+BH-002443/2025,4,DANG_XU_LY,tình trạng: pin tụt rất nhanh dùng 2 tiếng đã hết đã thử khởi động lại không được
+BH-002573/2026,5,DANG_XU_LY,khách báo màn hình nứt sau khi rơi
+BH-002628/2025,4,DANG_XU_LY,khách hàng phản ánh không nhận sim bị từ tuần trước
+BH-002659/2026,3,DANG_XU_LY,khách báo màn hình đen không lên bị từ tuần trước
+BH-002681/2025,3,DANG_XU_LY,kh nói pin tụt rất nhanh dùng 2 tiếng đã hết mới bị 2 ngày nay
+BH-002733/2025,3,DANG_XU_LY,KHÁCH HÀNG PHẢN ÁNH MÁY BỊ ĐỔ NƯỚC NGỌT VÀO KHÔNG SẠC ĐƯỢC MÁY CÒN BẢO HÀNH

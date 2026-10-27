@@ -4,10 +4,15 @@ const express = require('express');
 const stockController = require('./controllers/stock.controller');
 const authController = require('./controllers/auth.controller');
 const ticketController = require('./controllers/ticket.controller');
+const healthController = require('./controllers/health.controller');
 const errorHandler = require('./controllers/error-handler');
+const requestId = require('./controllers/request-id');
 const { AppError } = require('./errors');
 
 const app = express();
+
+// Gắn mã tương quan cho mỗi yêu cầu và ghi một dòng log khi yêu cầu kết thúc (đặt đầu tiên).
+app.use(requestId);
 
 // CORS cho giao diện chạy ở cổng khác (Vite 5173, nếu 5173 bị chiếm thì Vite tự sang 5174).
 // CORS_ORIGIN trong .env có thể khai báo nhiều nguồn, cách nhau bằng dấu phẩy.
@@ -33,6 +38,7 @@ app.use((req, res, next) => {
 app.use(express.json()); // đọc body JSON của POST/PATCH vào req.body
 
 // Mỗi nhóm đường dẫn do một controller lo (lớp 2 trong sơ đồ kiến trúc).
+app.use('/health', healthController); // kiểm tra sống cho docker-compose, không cần token
 app.use('/api/v1/auth', authController);
 app.use('/api/v1/centers/:centerId/stock', stockController); // theo docs/api-contract.md
 app.use('/api/v1/tickets', ticketController);

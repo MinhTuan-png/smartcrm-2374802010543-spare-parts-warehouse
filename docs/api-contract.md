@@ -11,7 +11,8 @@
 | **Ánh xạ tên API và CSDL** | Các trường trùng tên giữa API và CSDL (part_code, ticket_code, center_id, quantity của part_stock, min_threshold, unit_price). Chỉ ba trường của giao dịch kho đổi tên: type = loai, quantity = so_luong, transaction_date = ngay; CSDL giữ tên cột của part_transactions.csv để nạp bằng COPY. |
 | **Phân trang** | page ≥ 1 (mặc định 1), cố định 20 dòng mỗi trang (FR1, FR7). Phản hồi có page, page_size, total_items, total_pages. |
 | **Cảnh báo tồn** | low_stock_warning = (quantity < min_threshold). warning_label = "HẾT HÀNG" nếu có cảnh báo và quantity = 0; "SẮP HẾT" nếu có cảnh báo và quantity > 0; ngược lại null (QT-09, FR6). |
-| **Định dạng lỗi** | Mọi lỗi 4xx/5xx trả `{"error": {"code": "...", "message": "...", "details": ...}}`. Mã error.code dùng chung: VALIDATION_FAILED, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INSUFFICIENT_STOCK, TICKET_STATE_INVALID, INTERNAL_ERROR. code dành cho máy đọc (giao diện rẽ nhánh theo code); message là câu tiếng Việt cho người dùng, không chứa SQL, tên bảng hay stack trace; details là `null`, danh sách `[{field, reason}]` với 400, hoặc đối tượng số liệu với 409/422. Lỗi 500 có `details.lookup_id` (6 ký tự) trùng với dòng ghi log ở máy chủ để tra cứu. Đường dẫn không tồn tại trả 404 NOT_FOUND cùng định dạng. |
+| **Định dạng lỗi** | Mọi lỗi 4xx/5xx trả `{"error": {"code": "...", "message": "...", "details": ...}}`. Mã error.code dùng chung: VALIDATION_FAILED, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INSUFFICIENT_STOCK, TICKET_STATE_INVALID, INTERNAL_ERROR. code dành cho máy đọc (giao diện rẽ nhánh theo code); message là câu tiếng Việt cho người dùng, không chứa SQL, tên bảng hay stack trace; details là `null`, danh sách `[{field, reason}]` với 400, hoặc đối tượng số liệu với 409/422. Lỗi 500 và 503 có `details.lookup_id` (6 ký tự) bằng mã tương quan `X-Request-Id` của yêu cầu, trùng với dòng ghi log ở máy chủ để tra cứu. 503 (cùng code `INTERNAL_ERROR`) nghĩa là tạm thời không kết nối được CSDL (CSDL tắt, đang khởi động lại, quá `DB_CONNECT_TIMEOUT_MS`); dữ liệu không đổi, thử lại sau là được (TD-19). Đường dẫn không tồn tại trả 404 NOT_FOUND cùng định dạng. |
+| **Mã tương quan** | Mọi phản hồi có header `X-Request-Id`. Bên gọi có thể gửi sẵn header này (chữ, số, dấu gạch, tối đa 64 ký tự); không gửi hoặc sai dạng thì máy chủ tự sinh 6 ký tự hex. Mọi dòng log của yêu cầu ghi cùng `requestId` này (buổi 11). |
 | **Thứ tự kiểm tra** | (1) 401 xác thực; (2) 403 sai vai trò hoặc sai trung tâm; (3) 400 dữ liệu sai; (4) 404 không tìm thấy; (5) 403 phiếu thuộc trung tâm khác; (6) 422 phiếu sai trạng thái; (7) 409 tồn không đủ. Lỗi đầu tiên gặp phải được trả về, dữ liệu không đổi. Thứ tự này áp dụng cho một lần gọi API; ở UC2, bước 2 (tải phiếu) là thao tác tra cứu phiếu trên giao diện, thực hiện trước khi gửi yêu cầu xuất. |
 
 ## 1.2 Danh sách endpoint của các story MUST
@@ -571,3 +572,16 @@ Cả hai nhận Kỹ thuật viên và Quản lý. Mã phiếu có dấu "/" nê
 ```
 
 Chỉ gồm giao dịch XUAT của phiếu, cũ trước mới sau. `unit_price` là đơn giá hiện hành trong danh mục (CSDL không lưu giá lúc xuất). Phiếu chưa xuất linh kiện nào trả `items: []` và `total_amount: 0` (US7 tiêu chí 2), không phải 404.
+
+## 1.14 Kiểm tra sống – GET /health (buổi 11)
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **Mục đích** | Cho Docker (HEALTHCHECK của ảnh backend, `depends_on: condition: service_healthy` của `web`) và người vận hành biết API đã thật sự phục vụ được (TD-19). |
+| **Đường dẫn** | `GET /health`, nằm ngoài `/api/v1`. Khi chạy bằng Docker, gọi qua giao diện tại `http://localhost:8080/health` cũng được (nginx chuyển tiếp). |
+| **Quyền** | Không cần token. Không trả dữ liệu nghiệp vụ. |
+
+| Mã | Khi nào | Body |
+|---|---|---|
+| 200 | API chạy và CSDL trả lời `SELECT 1`. | `{"status": "ok", "db": "ok"}` |
+| 503 | API chạy nhưng không kết nối được CSDL. | `{"status": "degraded", "db": "unavailable"}` |

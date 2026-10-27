@@ -30,4 +30,4 @@ async function call(method, url, { token, body } = {}) {
   return { status: res.status, body: await res.json() };
 }
 
-module.exports = { start, stop, call, technician, manager };
+module.exports = { start, stop, call, technician, manager, base: () => base };

@@ -2,7 +2,10 @@
 // Component và trang không bao giờ gọi fetch trực tiếp; mọi lệnh gọi đi qua đây.
 import { session } from './session.js';
 
-const BASE = import.meta.env.VITE_API_BASE_URL; // KHÔNG ghi cứng URL trong mã
+// KHÔNG ghi cứng URL trong mã. Để trống khi chạy bằng Docker: giao diện gọi /api cùng nguồn, nginx chuyển sang backend.
+const BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+// Máy chủ không trả lời trong khoảng này thì báo lỗi để người dùng bấm Thử lại, không quay "Đang tải..." mãi.
+const TIMEOUT_MS = 20000;
 
 /** Lỗi đã dịch sang ngôn ngữ của ứng dụng. Giao diện rẽ nhánh theo `code`, không theo câu chữ. */
 export class ApiError extends Error {
@@ -25,10 +28,13 @@ export async function request(path, { method = 'GET', body } = {}) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-  } catch {
+  } catch (e) {
     // Không hiện "TypeError: Failed to fetch": nói chuyện gì, vì sao, làm gì tiếp.
-    throw new ApiError(0, 'NETWORK', 'Không kết nối được tới máy chủ kho.');
+    throw new ApiError(0, 'NETWORK', e?.name === 'TimeoutError'
+      ? 'Máy chủ kho không phản hồi.'
+      : 'Không kết nối được tới máy chủ kho.');
   }
 
   let data = null;
