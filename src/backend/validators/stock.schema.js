@@ -18,6 +18,12 @@ const partCode = z.string({ error: 'Bắt buộc, dạng chữ hoa, số và d�
   .regex(PART_CODE, 'Bắt buộc, dạng chữ hoa, số và dấu gạch ngang (5–30 ký tự).');
 
 const quantity = integer(1, 9999, 'Phải là số nguyên từ 1 đến 9999.');
+const minThreshold = integer(0, 2147483647, 'Phải là số nguyên ≥ 0.');
+
+// Danh mục linh kiện (TD-21): tên 1–120 ký tự (part_name VARCHAR(120)), giá VND NUMERIC(12,0).
+const partName = z.string({ error: 'Bắt buộc, 1–120 ký tự.' }).trim()
+  .min(1, 'Bắt buộc, 1–120 ký tự.').max(120, 'Bắt buộc, 1–120 ký tự.');
+const unitPrice = integer(0, 999999999999, 'Phải là số nguyên VND từ 0 đến 999.999.999.999.');
 
 const schemas = {
   // EP1
@@ -40,7 +46,25 @@ const schemas = {
   // EP3
   importBody: z.object({ part_code: partCode, quantity }),
   // EP6
-  thresholdBody: z.object({ min_threshold: integer(0, 2147483647, 'Phải là số nguyên ≥ 0.') }),
+  thresholdBody: z.object({ min_threshold: minThreshold }),
+  // Thêm dòng tồn cho trung tâm (TD-21): tồn bắt đầu bằng 0, muốn có hàng thì ghi nhập kho (EP3).
+  stockCreateBody: z.object({ part_code: partCode, min_threshold: minThreshold }),
+  // Danh mục linh kiện (TD-21)
+  partsQuery: z.object({
+    q: z.string({ error: 'Phải là chuỗi.' }).trim().max(50, 'Tối đa 50 ký tự.').optional()
+      .transform((v) => v || ''),
+    page,
+  }),
+  partCreateBody: z.object({ part_code: partCode, part_name: partName, unit_price: unitPrice }),
+  // Sửa: không đổi được mã (mã là khoá nghiệp vụ, đã in trên sổ giao dịch); phải gửi ít nhất một trường.
+  partUpdateBody: z.object({
+    part_name: partName.optional(),
+    unit_price: unitPrice.optional(),
+    part_code: z.never({ error: 'Không đổi được mã linh kiện; muốn đổi thì tạo mã mới.' }).optional(),
+  })
+    .refine((b) => b.part_name !== undefined || b.unit_price !== undefined, {
+      message: 'Phải gửi ít nhất một trong hai trường part_name, unit_price.', path: ['body'],
+    }),
   partCodeParam: z.object({ partCode }),
   // EP-L2, EP8
   ticketCodeParam: z.object({
