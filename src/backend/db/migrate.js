@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { pool } = require('./connection');
+const { logger } = require('../logger');
 
 (async () => {
   const dir = path.join(__dirname, 'migrations');
@@ -9,10 +10,10 @@ const { pool } = require('./connection');
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.sql')).sort();
   for (const f of files) {
     await pool.query(fs.readFileSync(path.join(dir, f), 'utf8'));
-    console.log('OK', f);
+    logger.info('migration đã chạy', { file: f });
   }
   await pool.end(); // đóng kết nối để lệnh npm run migrate tự kết thúc
-})().catch((e) => {
-  console.error('Migration lỗi:', e.message);
+})().catch((err) => {
+  logger.error('migration lỗi', { err });
   process.exit(1);
 });

@@ -8,8 +8,12 @@ const { parse } = require('csv-parse/sync');
 const { pool } = require('../connection');
 const { seedTickets } = require('./seed-tickets');
 const { seedUsers } = require('./seed-users');
+const { logger } = require('../../logger');
 
-const DATA_DIR = path.resolve(__dirname, '../../../../data'); // <gốc repo>/data
+// Thư mục chứa CSV: biến DATA_DIR (đường dẫn tương đối tính từ gốc repo, hoặc tuyệt đối như /data trong
+// container); mặc định <gốc repo>/data. Dữ liệu mẫu nhỏ đi kèm repo nằm ở data-mau/ (DATA_DIR=data-mau).
+const REPO_ROOT = path.resolve(__dirname, '../../../..');
+const DATA_DIR = path.resolve(REPO_ROOT, process.env.DATA_DIR || 'data');
 
 const FILES = { centers: 'service_centers.csv', parts: 'parts.csv', stock: 'part_stock.csv' };
 const COL = {
@@ -65,10 +69,10 @@ const readCsv = (file) =>
     extra.push(await seedUsers(client));
 
     await client.query('COMMIT');
-    extra.forEach((line) => console.log(line));
-  } catch (e) {
+    extra.forEach((line) => logger.info(line));
+  } catch (err) {
     await client.query('ROLLBACK');
-    console.error('Seed lỗi, đã hoàn tác:', e.message);
+    logger.error('seed lỗi, đã hoàn tác', { dataDir: DATA_DIR, err });
     process.exitCode = 1;
   } finally {
     client.release();
@@ -76,7 +80,7 @@ const readCsv = (file) =>
 
   for (const t of ['service_center', 'part', 'part_stock', 'ticket', 'part_transaction', 'app_user']) {
     const { rows } = await pool.query(`SELECT COUNT(*)::int AS n FROM ${t}`);
-    console.log(`${t}: ${rows[0].n} dòng`); // kỳ vọng 6 / 180 / 717 / 7800 / 4954 / 12
+    logger.info('số dòng sau seed', { table: t, rows: rows[0].n }); // dataset đầy đủ: 6 / 180 / 717 / 7800 / 4954 / 12
   }
   await pool.end();
 })();

@@ -7,7 +7,7 @@ const { signToken, ROLES } = require('../controllers/auth');
 
 const [role = 'TECHNICIAN', center = '2', user = '1'] = process.argv.slice(2);
 if (!ROLES.includes(role)) {
-  console.error(`Vai trò phải là ${ROLES.join(' hoặc ')}`);
+  process.stderr.write(`Vai trò phải là ${ROLES.join(' hoặc ')}\n`);
   process.exit(1);
 }
-console.log(signToken({ userId: Number(user), role, centerId: Number(center) }));
+process.stdout.write(`${signToken({ userId: Number(user), role, centerId: Number(center) })}\n`);
