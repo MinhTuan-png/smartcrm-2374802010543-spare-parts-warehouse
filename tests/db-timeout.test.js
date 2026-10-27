@@ -38,3 +38,9 @@ test('CSDL không trả lời: API trả 503 trong vài giây, không treo', { t
   assert.equal(body.error.details.lookup_id, res.headers.get('x-request-id'));
   assert.ok(Date.now() - t0 < 3000, `mất ${Date.now() - t0} ms`);
 });
+
+test('CSDL không trả lời: /health trả 503 để docker đánh dấu api unhealthy', { timeout: 10000 }, async () => {
+  const res = await fetch(`${http.base()}/health`, { signal: AbortSignal.timeout(4000) });
+  assert.equal(res.status, 503);
+  assert.deepEqual(await res.json(), { status: 'degraded', db: 'unavailable' });
+});

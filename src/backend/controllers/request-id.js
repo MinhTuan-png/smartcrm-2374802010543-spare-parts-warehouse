@@ -12,7 +12,9 @@ module.exports = function requestId(req, res, next) {
   req.requestId = typeof incoming === 'string' && VALID_ID.test(incoming) ? incoming : newId();
   res.setHeader('X-Request-Id', req.requestId);
   const start = Date.now();
-  res.on('finish', () => logger.info('yêu cầu hoàn tất', {
+  // /health được docker gọi mỗi 10 giây: ghi ở mức debug để không lấp log thật.
+  const log = req.path === '/health' ? logger.debug : logger.info;
+  res.on('finish', () => log('yêu cầu hoàn tất', {
     requestId: req.requestId,
     method: req.method,
     path: req.path, // không ghi query string: có thể chứa dữ liệu người dùng gõ

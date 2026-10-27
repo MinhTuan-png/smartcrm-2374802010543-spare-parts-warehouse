@@ -4,6 +4,7 @@ const express = require('express');
 const stockController = require('./controllers/stock.controller');
 const authController = require('./controllers/auth.controller');
 const ticketController = require('./controllers/ticket.controller');
+const healthController = require('./controllers/health.controller');
 const errorHandler = require('./controllers/error-handler');
 const requestId = require('./controllers/request-id');
 const { AppError } = require('./errors');
@@ -37,6 +38,7 @@ app.use((req, res, next) => {
 app.use(express.json()); // đọc body JSON của POST/PATCH vào req.body
 
 // Mỗi nhóm đường dẫn do một controller lo (lớp 2 trong sơ đồ kiến trúc).
+app.use('/health', healthController); // kiểm tra sống cho docker-compose, không cần token
 app.use('/api/v1/auth', authController);
 app.use('/api/v1/centers/:centerId/stock', stockController); // theo docs/api-contract.md
 app.use('/api/v1/tickets', ticketController);
