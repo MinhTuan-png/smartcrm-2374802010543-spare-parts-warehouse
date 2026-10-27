@@ -82,6 +82,17 @@ function toMovementResult(txn, stockRow) {
   };
 }
 
+/**
+ * Một linh kiện trong danh mục (TD-21). Danh mục dùng chung cho mọi trung tâm, không có tồn.
+ *   part_code  : chuỗi, luôn có (khoá nghiệp vụ, không đổi được)
+ *   part_name  : chuỗi, luôn có
+ *   unit_price : số nguyên VND (CSDL trả NUMERIC dạng chuỗi nên phải đổi ở đây)
+ * Không trả is_active: API chỉ trả linh kiện đang dùng; linh kiện đã ngừng dùng coi như không có (404).
+ */
+function toPartItem(row) {
+  return { part_code: row.part_code, part_name: row.part_name, unit_price: Number(row.unit_price) };
+}
+
 /** Phần phân trang chung (api-contract.md mục 1.1). total_pages = 0 khi không có dòng nào. */
 function toPage({ page, pageSize, totalItems }) {
   return {
@@ -138,5 +149,5 @@ function toUsedParts(ticketCode, rows) {
 }
 
 module.exports = {
-  warningLabel, toStockItem, toLowStockItem, toMovementResult, toPage, toTicket, toUsedParts,
+  warningLabel, toStockItem, toLowStockItem, toMovementResult, toPage, toTicket, toUsedParts, toPartItem,
 };
