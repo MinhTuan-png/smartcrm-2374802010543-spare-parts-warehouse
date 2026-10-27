@@ -1,0 +1,7 @@
+# Không đưa vào ảnh: thư viện cài trên máy (ảnh tự cài bằng npm ci), bí mật, tệp rác.
+node_modules
+npm-debug.log*
+.env
+.env.*
+Dockerfile
+.dockerignore
