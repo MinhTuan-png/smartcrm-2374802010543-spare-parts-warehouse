@@ -41,7 +41,7 @@ module.exports = function errorHandler(err, req, res, next) {
   const lookupId = req.requestId || crypto.randomBytes(3).toString('hex').toUpperCase();
   const unavailable = isDbUnavailable(err);
   logger.error(unavailable ? 'không kết nối được CSDL' : 'lỗi hệ thống', {
-    requestId: lookupId, method: req.method, path: req.path, err,
+    requestId: lookupId, method: req.method, path: String(req.originalUrl || req.url || '').split('?')[0], err,
   });
   res.status(unavailable ? 503 : 500).json(body(
     'INTERNAL_ERROR',

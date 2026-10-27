@@ -17,7 +17,9 @@ module.exports = function requestId(req, res, next) {
   res.on('finish', () => log('yêu cầu hoàn tất', {
     requestId: req.requestId,
     method: req.method,
-    path: req.path, // không ghi query string: có thể chứa dữ liệu người dùng gõ
+    // originalUrl: đường dẫn đầy đủ (req.path trong router con chỉ còn phần sau tiền tố).
+    // Bỏ query string: có thể chứa dữ liệu người dùng gõ.
+    path: req.originalUrl.split('?')[0],
     status: res.statusCode,
     durationMs: Date.now() - start,
   }));
