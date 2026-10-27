@@ -75,3 +75,13 @@ test.describe('mã tương quan X-Request-Id', () => {
     assert.match(bad.headers.get('x-request-id'), /^[0-9A-F]{6}$/);
   });
 });
+
+test('mất kết nối CSDL (ECONNREFUSED, 57P01): trả 503 thay vì 500, vẫn có mã tra cứu', () => {
+  for (const code of ['ECONNREFUSED', '57P01']) {
+    const res = { statusCode: 0, json(b) { this.body = b; return this; }, status(c) { this.statusCode = c; return this; } };
+    errorHandler(Object.assign(new Error('x'), { code }), { requestId: 'R1', method: 'GET', path: '/' }, res, () => {});
+    assert.equal(res.statusCode, 503, code);
+    assert.equal(res.body.error.code, 'INTERNAL_ERROR');
+    assert.equal(res.body.error.details.lookup_id, 'R1');
+  }
+});

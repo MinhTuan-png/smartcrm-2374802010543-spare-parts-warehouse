@@ -14,6 +14,14 @@ const STATUS = {
   TICKET_STATE_INVALID: 422,
 };
 
+// Lỗi cho biết KHÔNG kết nối được CSDL (CSDL tắt, đang khởi động lại, quá thời gian chờ):
+// trả 503 thay vì 500 để bên gọi biết đây là sự cố tạm thời, thử lại sau là được.
+const DB_UNAVAILABLE_CODES = ['ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND', 'EAI_AGAIN',
+  '57P01', '57P02', '57P03']; // 57P0x: PostgreSQL đang tắt / khởi động lại / chưa nhận kết nối
+const isDbUnavailable = (err) =>
+  DB_UNAVAILABLE_CODES.includes(err.code)
+  || /timeout exceeded when trying to connect|Connection terminated/i.test(err.message || '');
+
 const body = (code, message, details = null) => ({ error: { code, message, details } });
 
 // Ghi log ĐÚNG MỘT LẦN ở đây cho mọi lỗi; service, repository không tự ghi log rồi ném lại.
@@ -31,10 +39,17 @@ module.exports = function errorHandler(err, req, res, next) {
   // Lỗi không lường trước: ghi chi tiết vào log kèm mã tra cứu (= requestId), người dùng chỉ thấy mã tra cứu.
   // Không bao giờ trả câu SQL, tên bảng hay stack trace ra ngoài.
   const lookupId = req.requestId || crypto.randomBytes(3).toString('hex').toUpperCase();
-  logger.error('lỗi hệ thống', { requestId: lookupId, method: req.method, path: req.path, err });
-  res.status(500).json(body(
+  const unavailable = isDbUnavailable(err);
+  logger.error(unavailable ? 'không kết nối được CSDL' : 'lỗi hệ thống', {
+    requestId: lookupId, method: req.method, path: req.path, err,
+  });
+  res.status(unavailable ? 503 : 500).json(body(
     'INTERNAL_ERROR',
-    `Hệ thống đang gặp sự cố, dữ liệu chưa thay đổi. Vui lòng thử lại sau ít phút. Mã tra cứu: ${lookupId}.`,
+    unavailable
+      ? `Không kết nối được cơ sở dữ liệu, dữ liệu chưa thay đổi. Vui lòng thử lại sau ít phút. Mã tra cứu: ${lookupId}.`
+      : `Hệ thống đang gặp sự cố, dữ liệu chưa thay đổi. Vui lòng thử lại sau ít phút. Mã tra cứu: ${lookupId}.`,
     { lookup_id: lookupId }
   ));
 };
+
+module.exports.isDbUnavailable = isDbUnavailable;

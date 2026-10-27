@@ -14,6 +14,9 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
+  // CSDL không trả lời thì bỏ cuộc sau DB_CONNECT_TIMEOUT_MS (mặc định 5 giây), không chờ mãi (BUG-003).
+  // Lỗi này đi lên error-handler và thành 503 có mã tra cứu.
+  connectionTimeoutMillis: Number(process.env.DB_CONNECT_TIMEOUT_MS) || 5000,
 });
 
 // Kết nối ĐANG RẢNH bị CSDL cắt (PostgreSQL tắt hoặc khởi động lại, mã 57P01) thì pool phát 'error'.
