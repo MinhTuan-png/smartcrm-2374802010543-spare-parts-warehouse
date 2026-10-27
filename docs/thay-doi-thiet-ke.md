@@ -107,3 +107,22 @@
 
 ### TD-08 (cập nhật) Kiểm thử cho NFR3 và NFR5
 - Đã thực hiện ở buổi 9: `tests/stock.api.test.js` có test 20 yêu cầu xuất đồng thời (đúng 10 thành công, 10 bị 409, tồn cuối 0) và test 403 cho mọi tổ hợp sai trung tâm, sai vai trò.
+
+## Buổi 11 – Tích hợp hệ thống, xử lý lỗi và đóng gói (ngày 27/10/2026)
+
+### TD-18 Đóng gói bằng Docker: ba dịch vụ db · api · web
+- Thay đổi gì : Thêm `docker-compose.yml` (db PostgreSQL 16, api, web), `src/backend/Dockerfile` (hai giai đoạn, người dùng `node` không đặc quyền, HEALTHCHECK gọi `/health`), `src/frontend/Dockerfile` (dựng bằng Vite, phục vụ bằng nginx-unprivileged ở cổng 8080) và `src/frontend/nginx.conf` (chuyển `/api`, `/health` sang dịch vụ `api`). Thêm dữ liệu mẫu nhỏ `data-mau/` (danh mục đủ, 360 phiếu, 174 giao dịch) để hệ thống không lên trống. `.env.example` có đủ mọi biến với giá trị mẫu.
+- Vì sao : Tài liệu buổi 11 yêu cầu hệ thống chạy được trên máy người khác theo README; BT3 yêu cầu chạy được bằng tối đa 2 lệnh từ máy chưa cài gì. Dataset đầy đủ không commit nên cần mẫu nhỏ trong repo.
+- Quyết định nhỏ : (1) Giao diện trong Docker gọi `/api` cùng nguồn qua nginx (`VITE_API_BASE_URL` để trống) thay vì gọi thẳng cổng 3000, nên không phụ thuộc CORS và đổi `WEB_PORT` không làm hỏng giao diện. (2) Giao diện mở ở cổng 8080, CSDL mở ra cổng 5433, để không đụng Vite dev (5173) và PostgreSQL cài sẵn (5432) khi chạy song song cách 2. (3) Ảnh ghim `node:22-alpine` thay cho Node 20 vì Node 20 hết hạn hỗ trợ từ 04/2026; README vẫn ghi tối thiểu Node 20 cho cách chạy trực tiếp. (4) Mỗi lần api khởi động chạy chờ CSDL → migrate → seed; cả hai chạy lại được (IF NOT EXISTS, ON CONFLICT DO NOTHING) nên không ghi đè dữ liệu đã thay đổi.
+- Ảnh hưởng : Không đổi kiến trúc 5 lớp hay ERD. Cách chạy trực tiếp bằng Node (README mục 3.2, 3.3) giữ nguyên. Seed đọc thư mục CSV từ biến `DATA_DIR` (mặc định `data/`).
+
+### TD-19 Mất CSDL trả 503, thêm GET /health và mã tương quan X-Request-Id
+- Thay đổi gì : Lỗi không kết nối được CSDL trả HTTP 503 (code vẫn là `INTERNAL_ERROR`, có `details.lookup_id`) thay vì 500 hoặc treo; pool CSDL có thời gian chờ `DB_CONNECT_TIMEOUT_MS` (mặc định 5 giây). Thêm `GET /health` (api-contract mục 1.14). Mọi phản hồi có header `X-Request-Id`; mã tra cứu của lỗi 500/503 chính là mã này.
+- Vì sao : Phép thử suy giảm có kiểm soát của buổi 11 phát hiện BUG-002 (API sập khi CSDL khởi động lại) và BUG-003 (yêu cầu treo khi CSDL không trả lời), xem `docs/bug-log.md`. Lý thuyết buổi 11 phân biệt lỗi hạ tầng tạm thời (503) với lỗi hệ thống (500).
+- Ảnh hưởng : Thay đổi tương thích: giữ nguyên định dạng lỗi và danh sách `error.code`, chỉ thêm mã HTTP 503, một endpoint và một header. Giao diện không phải sửa vì vẫn rẽ nhánh theo `INTERNAL_ERROR` (hiện mã tra cứu và nút Thử lại); `api/client.js` thêm thời gian chờ 20 giây cho mỗi lần gọi.
+
+### TD-20 Log JSON ra thiết bị xuất chuẩn
+- Thay đổi gì : Thêm `src/backend/logger.js`: mỗi dòng log là một JSON có `time` (ISO), `level`, `msg` và ngữ cảnh (`requestId`, mã lỗi...); mức theo `LOG_LEVEL`; các trường mật khẩu, token, Authorization, chuỗi kết nối, số điện thoại bị thay bằng `***`. Error-handler là nơi duy nhất ghi log lỗi: lỗi nghiệp vụ mức INFO, lỗi hệ thống mức ERROR. Bỏ `console.log` trong `src/`.
+- Vì sao : Ba thứ mọi dòng log phải có và thứ tuyệt đối không được ghi (lý thuyết buổi 11); log ra stdout để `docker compose logs` đọc được, không mất khi xoá container.
+- Ảnh hưởng : Không đổi API. `npm test` tắt log server (`LOG_LEVEL=silent`) để kết quả test dễ đọc.
+
