@@ -2,6 +2,7 @@
 // QT-L5-01 (sổ giao dịch chỉ ghi thêm), QT-L5-02 (trạng thái phiếu được phép xuất).
 // Gọi repository và lớp tích hợp L2, không viết SQL. Nhận dữ liệu đã kiểm tra ở controller.
 const repo = require('../repositories/stock.repository');
+const parts = require('../repositories/part.repository');
 const tickets = require('../integrations/ticket.integration');
 const contract = require('./stock.contract');
 const { AppError } = require('../errors');
@@ -43,7 +44,7 @@ async function getStock(centerId, partCode) {
   return contract.toStockItem(row);
 }
 
-/** EP6 (FR8): đặt ngưỡng cho dòng tồn có sẵn; L5 không tạo dòng tồn mới. */
+/** EP6 (FR8): đặt ngưỡng cho dòng tồn có sẵn (dòng mới thì tạo bằng createStock). */
 async function setThreshold(centerId, partCode, minThreshold) {
   const row = await repo.updateThreshold(centerId, partCode, minThreshold);
   if (!row) throw notFound(partCode);
@@ -117,10 +118,45 @@ async function importPart({ centerId, partCode, quantity }) {
   });
 }
 
+/**
+ * Thêm dòng tồn cho trung tâm (TD-21): linh kiện phải có trong danh mục; tồn bắt đầu bằng 0,
+ * muốn có hàng thì ghi nhập kho (EP3) để sổ giao dịch giải thích được từng cái (QT-L5-01).
+ * @throws {AppError} NOT_FOUND khi linh kiện không có trong danh mục | ALREADY_EXISTS khi trung tâm đã có dòng tồn
+ */
+async function createStock({ centerId, partCode, minThreshold }) {
+  const row = await repo.insertOrReactivate(centerId, partCode, minThreshold);
+  if (row) return contract.toStockItem(row);
+  const part = await parts.findByCode(partCode);
+  if (!part || !part.is_active) {
+    throw new AppError('NOT_FOUND', `Không tìm thấy linh kiện ${partCode} trong danh mục.`);
+  }
+  throw new AppError('ALREADY_EXISTS', `Trung tâm của bạn đã có dòng tồn của linh kiện ${partCode}.`,
+    { part_code: partCode });
+}
+
+/**
+ * Ngừng dùng một dòng tồn (DELETE, TD-21). Chỉ được khi tồn = 0: còn hàng mà ngừng thì số hàng đó
+ * biến mất khỏi tra cứu. Khoá dòng tồn như khi nhập/xuất nên không có lần nhập nào chen vào giữa.
+ * @throws {AppError} NOT_FOUND | STOCK_NOT_EMPTY
+ */
+async function deleteStock(centerId, partCode) {
+  return repo.inTransaction(async (client) => {
+    const stock = await repo.lockStock(client, centerId, partCode);
+    if (!stock) throw notFound(partCode);
+    if (stock.quantity > 0) {
+      throw new AppError('STOCK_NOT_EMPTY',
+        `Linh kiện ${partCode} còn ${stock.quantity} cái nên chưa ngừng dùng được. Xuất hết trước rồi thử lại.`,
+        { part_code: partCode, quantity: stock.quantity });
+    }
+    await repo.deactivate(client, centerId, stock.part_id);
+  });
+}
+
 function notFound(partCode) {
   return new AppError('NOT_FOUND', `Trung tâm của bạn không có dòng tồn của linh kiện ${partCode}.`);
 }
 
 module.exports = {
   PAGE_SIZE, listStock, listLowStock, getStock, setThreshold, exportPart, importPart,
+  createStock, deleteStock,
 };
