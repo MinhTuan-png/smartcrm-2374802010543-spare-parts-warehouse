@@ -5,9 +5,13 @@ const stockController = require('./controllers/stock.controller');
 const authController = require('./controllers/auth.controller');
 const ticketController = require('./controllers/ticket.controller');
 const errorHandler = require('./controllers/error-handler');
+const requestId = require('./controllers/request-id');
 const { AppError } = require('./errors');
 
 const app = express();
+
+// Gắn mã tương quan cho mỗi yêu cầu và ghi một dòng log khi yêu cầu kết thúc (đặt đầu tiên).
+app.use(requestId);
 
 // CORS cho giao diện chạy ở cổng khác (Vite 5173, nếu 5173 bị chiếm thì Vite tự sang 5174).
 // CORS_ORIGIN trong .env có thể khai báo nhiều nguồn, cách nhau bằng dấu phẩy.

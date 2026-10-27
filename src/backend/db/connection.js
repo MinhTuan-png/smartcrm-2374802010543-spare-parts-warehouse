@@ -1,6 +1,6 @@
 // Lớp 5: kết nối PostgreSQL. Cấu hình lấy từ .env ở thư mục gốc repo.
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../../.env'), quiet: true });
 const { Pool, types } = require('pg');
 
 // Cột DATE (oid 1082) giữ nguyên chuỗi 'YYYY-MM-DD'. Mặc định pg đổi sang Date lúc 00:00 giờ máy,
