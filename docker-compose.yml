@@ -1,0 +1,61 @@
+# Chạy toàn hệ thống bằng hai lệnh (xem README mục 3a):
+#   cp .env.example .env        (Windows PowerShell: Copy-Item .env.example .env)
+#   docker compose up -d --build
+# Ba dịch vụ, thứ tự khởi động: db (healthy) → api (healthy) → web.
+# Mọi mật khẩu, khoá lấy từ .env; tệp này được commit nên không ghi cứng bí mật nào.
+name: smartcrm
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data   # giữ dữ liệu khi container bị xoá; xoá hẳn bằng docker compose down -v
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # Mở ra máy để xem bằng pgAdmin/psql. Mặc định 5433 để không đụng PostgreSQL cài sẵn trên máy (5432).
+    ports:
+      - "${DB_PUBLISH_PORT:-5433}:5432"
+
+  api:
+    build: ./src/backend
+    environment:
+      DB_HOST: db                 # TÊN DỊCH VỤ trong compose, không phải localhost
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      APP_PORT: 3000
+      SECRET_KEY: ${SECRET_KEY}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+      DEMO_PASSWORD: ${DEMO_PASSWORD}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_CONNECT_TIMEOUT_MS: ${DB_CONNECT_TIMEOUT_MS:-5000}
+      DATA_DIR: /data
+    volumes:
+      # CSV để seed: mặc định dữ liệu mẫu nhỏ trong repo; đặt LOCAL_DATA_DIR=./data để dùng dataset đầy đủ.
+      - ${LOCAL_DATA_DIR:-./data-mau}:/data:ro
+    depends_on:
+      db:
+        condition: service_healthy  # CHỜ db sẵn sàng nhận kết nối, không chỉ chờ container db khởi động
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    restart: unless-stopped
+
+  web:
+    build: ./src/frontend
+    depends_on:
+      api:
+        condition: service_healthy  # dùng HEALTHCHECK trong src/backend/Dockerfile
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    restart: unless-stopped
+
+volumes:
+  db_data:
