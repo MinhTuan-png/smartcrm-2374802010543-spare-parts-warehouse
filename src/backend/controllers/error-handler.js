@@ -12,6 +12,8 @@ const STATUS = {
   NOT_FOUND: 404,
   INSUFFICIENT_STOCK: 409,
   TICKET_STATE_INVALID: 422,
+  ALREADY_EXISTS: 409,  // tạo trùng mã linh kiện / dòng tồn đang dùng (TD-21)
+  STOCK_NOT_EMPTY: 409, // ngừng dùng khi còn tồn (TD-21)
 };
 
 // Lỗi cho biết KHÔNG kết nối được CSDL (CSDL tắt, đang khởi động lại, quá thời gian chờ):
