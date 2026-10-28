@@ -5,13 +5,13 @@
 | Mục | Quy ước |
 |---|---|
 | **Base URL** | `/api/v1`; dữ liệu JSON UTF-8, header `Content-Type: application/json` với các yêu cầu có body. |
-| **Xác thực** | Header `Authorization: Bearer <access_token>`. Token chứa user_id, vai trò (TECHNICIAN hoặc MANAGER) và center_id. Việc cấp token nằm ngoài phạm vi L5 (WON'T: SSO, quản lý tài khoản); L5 chỉ đọc token. |
+| **Xác thực** | Header `Authorization: Bearer <access_token>`. Token chứa user_id, vai trò (TECHNICIAN hoặc MANAGER) và center_id. Token do `POST /api/v1/auth/login` cấp (mục 1.12, TD-14); SSO và quản lý tài khoản vẫn là WON'T. |
 | **Trung tâm** | center_id nằm trong đường dẫn và phải bằng center_id của token. Khác nhau thì trả 403 FORBIDDEN, kể cả khi trung tâm đó không tồn tại, để không lộ dữ liệu (QT-14, NFR5). Các endpoint theo mã phiếu (EP5, EP8) không có center_id trên đường dẫn: lớp nghiệp vụ so center_id của phiếu với center_id trong token và trả 403 nếu khác (QT-14). |
 | **Kiểu dữ liệu** | Tên trường snake_case; số lượng là số nguyên JSON; tiền là số nguyên VND; ngày theo ISO 8601 YYYY-MM-DD; trạng thái phiếu giữ nguyên chữ có dấu: "Mới", "Đã phân công", "Đang xử lý", "Chờ linh kiện", "Hoàn tất", "Đã đóng", "Đã hủy". |
 | **Ánh xạ tên API và CSDL** | Các trường trùng tên giữa API và CSDL (part_code, ticket_code, center_id, quantity của part_stock, min_threshold, unit_price). Chỉ ba trường của giao dịch kho đổi tên: type = loai, quantity = so_luong, transaction_date = ngay; CSDL giữ tên cột của part_transactions.csv để nạp bằng COPY. |
 | **Phân trang** | page ≥ 1 (mặc định 1), cố định 20 dòng mỗi trang (FR1, FR7). Phản hồi có page, page_size, total_items, total_pages. |
 | **Cảnh báo tồn** | low_stock_warning = (quantity < min_threshold). warning_label = "HẾT HÀNG" nếu có cảnh báo và quantity = 0; "SẮP HẾT" nếu có cảnh báo và quantity > 0; ngược lại null (QT-09, FR6). |
-| **Định dạng lỗi** | Mọi lỗi 4xx/5xx trả `{"error": {"code": "...", "message": "...", "details": ...}}`. Mã error.code dùng chung: VALIDATION_FAILED, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INSUFFICIENT_STOCK, TICKET_STATE_INVALID, INTERNAL_ERROR. code dành cho máy đọc (giao diện rẽ nhánh theo code); message là câu tiếng Việt cho người dùng, không chứa SQL, tên bảng hay stack trace; details là `null`, danh sách `[{field, reason}]` với 400, hoặc đối tượng số liệu với 409/422. Lỗi 500 và 503 có `details.lookup_id` (6 ký tự) bằng mã tương quan `X-Request-Id` của yêu cầu, trùng với dòng ghi log ở máy chủ để tra cứu. 503 (cùng code `INTERNAL_ERROR`) nghĩa là tạm thời không kết nối được CSDL (CSDL tắt, đang khởi động lại, quá `DB_CONNECT_TIMEOUT_MS`); dữ liệu không đổi, thử lại sau là được (TD-19). Đường dẫn không tồn tại trả 404 NOT_FOUND cùng định dạng. |
+| **Định dạng lỗi** | Mọi lỗi 4xx/5xx trả `{"error": {"code": "...", "message": "...", "details": ...}}`. Mã error.code dùng chung: VALIDATION_FAILED, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INSUFFICIENT_STOCK, TICKET_STATE_INVALID, ALREADY_EXISTS, STOCK_NOT_EMPTY, INTERNAL_ERROR (hai mã 409 ALREADY_EXISTS, STOCK_NOT_EMPTY chỉ dùng cho CRUD danh mục ở mục 1.15). code dành cho máy đọc (giao diện rẽ nhánh theo code); message là câu tiếng Việt cho người dùng, không chứa SQL, tên bảng hay stack trace; details là `null`, danh sách `[{field, reason}]` với 400, hoặc đối tượng số liệu với 409/422. Lỗi 500 và 503 có `details.lookup_id` (6 ký tự) bằng mã tương quan `X-Request-Id` của yêu cầu, trùng với dòng ghi log ở máy chủ để tra cứu. 503 (cùng code `INTERNAL_ERROR`) nghĩa là tạm thời không kết nối được CSDL (CSDL tắt, đang khởi động lại, quá `DB_CONNECT_TIMEOUT_MS`); dữ liệu không đổi, thử lại sau là được (TD-19). Đường dẫn không tồn tại trả 404 NOT_FOUND cùng định dạng. |
 | **Mã tương quan** | Mọi phản hồi có header `X-Request-Id`. Bên gọi có thể gửi sẵn header này (chữ, số, dấu gạch, tối đa 64 ký tự); không gửi hoặc sai dạng thì máy chủ tự sinh 6 ký tự hex. Mọi dòng log của yêu cầu ghi cùng `requestId` này (buổi 11). |
 | **Thứ tự kiểm tra** | (1) 401 xác thực; (2) 403 sai vai trò hoặc sai trung tâm; (3) 400 dữ liệu sai; (4) 404 không tìm thấy; (5) 403 phiếu thuộc trung tâm khác; (6) 422 phiếu sai trạng thái; (7) 409 tồn không đủ. Lỗi đầu tiên gặp phải được trả về, dữ liệu không đổi. Thứ tự này áp dụng cho một lần gọi API; ở UC2, bước 2 (tải phiếu) là thao tác tra cứu phiếu trên giao diện, thực hiện trước khi gửi yêu cầu xuất. |
 
@@ -424,7 +424,7 @@ Vai trò không phải là trường nhập mà lấy từ token: EP1 và EP4 nh
 | US4 | Trung tâm 2: 29 dòng sắp hết, trong đó 17 dòng HẾT HÀNG | EP4 | 200 |
 | US4 | Ngưỡng 5, tồn 5: không xuất hiện, không cảnh báo | EP4 (và EP2, EP3) | 200 (low_stock_warning = false) |
 
-**Kết quả tự kiểm:** 4/4 endpoint truy vết được về ít nhất một User Story MUST; 4/4 User Story MUST (US1–US4) có ít nhất một endpoint phục vụ; 11/11 tiêu chí chấp nhận MUST của US1–US4 (không tính tiêu chí 4 của US4 về đặt ngưỡng, do EP6 ở mục 1.9 phục vụ) có kịch bản request/response và mã HTTP tương ứng; không có endpoint nào phục vụ các mục WON'T ở mục 1 của `docs/srs.md`.
+**Kết quả tự kiểm:** 4/4 endpoint truy vết được về ít nhất một User Story MUST; 4/4 User Story MUST (US1–US4) có ít nhất một endpoint phục vụ; 11/11 tiêu chí chấp nhận MUST của US1–US4 (không tính tiêu chí 4 của US4 về đặt ngưỡng, do EP6 ở mục 1.9 phục vụ) có kịch bản request/response và mã HTTP tương ứng; không có endpoint nào phục vụ các mục WON'T ở mục 1 của `docs/srs.md`, trừ CRUD danh mục ở mục 1.15 được thêm ở mức tối thiểu cho tiêu chí S1 của BT2 (TD-21).
 
 ## 1.9 EP6 – PATCH /api/v1/centers/{center_id}/stock/{part_code}/threshold (US4, FR8)
 
@@ -502,10 +502,10 @@ Bảng dưới chỉ ra nơi mỗi phần của hợp đồng này được vi�
 
 | Ranh giới | Viết ở | Thi hành bằng | Test giữ hợp đồng |
 |---|---|---|---|
-| Client → API (đầu vào) | `src/backend/validators/stock.schema.js` | zod, kiểm tra một lần ở controller; sai trả 400 kèm `details` theo trường | `tests/stock.schema.test.js` |
+| Client → API (đầu vào) | `src/backend/validators/stock.schema.js` | zod, kiểm tra một lần ở controller; sai trả 400 kèm `details` theo trường (cả schema CRUD ở mục 1.15) | `tests/stock.schema.test.js` |
 | Đăng nhập | `src/backend/services/auth.service.js`, `services/password.js` | Băm scrypt, so sánh thời gian hằng; sai tên hay sai mật khẩu cùng một lỗi 401 | `tests/auth.api.test.js` |
 | Token → API | `src/backend/controllers/auth.js` | Kiểm tra chữ ký JWT, vai trò, center_id; thứ tự 401 → 403 → 400 | `tests/auth.test.js`, NFR5 trong `tests/stock.api.test.js` |
-| Service → API (đầu ra) | `src/backend/services/stock.contract.js` | Hàm chuyển đổi `toStockItem`, `toLowStockItem`, `toMovementResult`, `toPage`; là chỗ duy nhất biết cả tên cột CSDL và tên trường API | `tests/stock.contract.test.js` |
+| Service → API (đầu ra) | `src/backend/services/stock.contract.js` | Hàm chuyển đổi `toStockItem`, `toLowStockItem`, `toMovementResult`, `toPage`, `toPartItem` (mục 1.15); là chỗ duy nhất biết cả tên cột CSDL và tên trường API | `tests/stock.contract.test.js` |
 | L2 → L5 (phiếu) | `src/backend/integrations/ticket.integration.js` | Đổi mã trạng thái CSDL (DANG_XU_LY) sang tên có dấu ("Đang xử lý") | `tests/stock.api.test.js` (422) |
 | API → giao diện | `src/frontend/src/api/stock.view.js` | Đổi snake_case sang tên dùng trong giao diện, định dạng tiền VND; trang không đọc tên trường API | `src/frontend/src/api/stock.view.test.js` |
 
@@ -585,3 +585,65 @@ Chỉ gồm giao dịch XUAT của phiếu, cũ trước mới sau. `unit_price`
 |---|---|---|
 | 200 | API chạy và CSDL trả lời `SELECT 1`. | `{"status": "ok", "db": "ok"}` |
 | 503 | API chạy nhưng không kết nối được CSDL. | `{"status": "degraded", "db": "unavailable"}` |
+
+## 1.15 CRUD danh mục linh kiện và dòng tồn (BT2, TD-21)
+
+Đề BT2 (track SE, tiêu chí S1) yêu cầu ít nhất 2 thực thể có đủ tạo, đọc, sửa, xoá. Hai thực thể là **linh kiện** (`part`, danh mục dùng chung) và **dòng tồn** (`part_stock`, tồn của một linh kiện tại một trung tâm). "Xoá" là **ngừng dùng** (đặt `is_active = false`), không xoá vật lý (QT-13): dòng vẫn còn trong CSDL để sổ giao dịch và linh kiện đã dùng của phiếu (EP8) tra lại được. Thứ ngừng dùng coi như không có: mọi lệnh đọc, sửa, nhập, xuất trả 404. Tạo lại cùng mã thì dùng lại dòng cũ.
+
+| Thực thể | Thao tác | Phương thức và đường dẫn | Quyền | Thành công | Lỗi riêng |
+|---|---|---|---|---|---|
+| Linh kiện | Đọc danh sách | GET `/api/v1/parts?q=&page=` | Mọi người đã đăng nhập | 200, phân trang 20, chỉ linh kiện đang dùng, sắp theo mã | 400 |
+| Linh kiện | Đọc một | GET `/api/v1/parts/{part_code}` | Mọi người đã đăng nhập | 200 | 404 |
+| Linh kiện | Tạo | POST `/api/v1/parts` | Quản lý | 201 | 400; 409 `ALREADY_EXISTS` (mã đang dùng) |
+| Linh kiện | Sửa | PATCH `/api/v1/parts/{part_code}` | Quản lý | 200 | 400 (gửi `part_code`, hoặc không gửi trường nào); 404 |
+| Linh kiện | Xoá (ngừng dùng) | DELETE `/api/v1/parts/{part_code}` | Quản lý | 204, ngừng dùng luôn mọi dòng tồn của linh kiện | 404; 409 `STOCK_NOT_EMPTY` (còn tồn > 0 ở ít nhất một trung tâm) |
+| Dòng tồn | Đọc | GET `.../centers/{center_id}/stock` (EP1), GET `.../stock/{part_code}` | Như EP1 | 200 | Như EP1; 404 |
+| Dòng tồn | Tạo | POST `/api/v1/centers/{center_id}/stock` | Quản lý, đúng trung tâm (QT-14) | 201, tồn = 0 | 400; 404 (linh kiện không có trong danh mục); 409 `ALREADY_EXISTS` |
+| Dòng tồn | Sửa | PATCH `.../stock/{part_code}/threshold` (EP6, mục 1.9) | Quản lý | 200 | Như EP6 |
+| Dòng tồn | Xoá (ngừng dùng) | DELETE `/api/v1/centers/{center_id}/stock/{part_code}` | Quản lý, đúng trung tâm | 204 | 404; 409 `STOCK_NOT_EMPTY` (tồn > 0) |
+
+Quy tắc giữ nguyên: số lượng tồn chỉ đổi qua nhập/xuất kho (EP2, EP3) để sổ giao dịch giải thích được từng cái (QT-L5-01), nên dòng tồn mới luôn bắt đầu bằng 0 và không có trường `quantity` khi tạo hay sửa. Mã linh kiện không sửa được vì đã nằm trên sổ giao dịch; muốn đổi thì tạo mã mới. Chỉ ngừng dùng được khi tồn bằng 0, để hàng còn trong kho không "biến mất" khỏi màn hình tra cứu. Đổi đơn giá thì thành tiền ở EP8 đổi theo, vì EP8 dùng giá hiện hành (mục 1.13).
+
+Thứ tự kiểm tra như mục 1.1: 401 → 403 (vai trò, trung tâm) → 400 → 404 → 409.
+
+### Validation
+
+| Trường | Ở | Bắt buộc | Quy tắc | Sai trả |
+|---|---|---|---|---|
+| part_code | body (tạo linh kiện, tạo dòng tồn), đường dẫn | Có | Như EP2: chữ hoa, số, dấu gạch ngang, 5–30 ký tự | 400 |
+| part_name | body | Có khi tạo; tuỳ chọn khi sửa | Chuỗi, cắt khoảng trắng hai đầu, 1–120 ký tự | 400 |
+| unit_price | body | Có khi tạo; tuỳ chọn khi sửa | Số nguyên VND, 0 đến 999.999.999.999; không nhận chuỗi, số thập phân | 400 |
+| min_threshold | body (tạo dòng tồn) | Có | Như EP6: số nguyên ≥ 0 | 400 |
+| (body sửa linh kiện) | body | — | Phải có ít nhất một trong `part_name`, `unit_price`; gửi `part_code` thì bị từ chối | 400 |
+
+### Ví dụ (PowerShell, trong `src/backend`, server đang chạy)
+
+```powershell
+$QL = npm run -s token -- MANAGER 2
+# Linh kiện: tạo → đọc → sửa → xoá
+curl.exe -X POST "http://localhost:3000/api/v1/parts" -H "Authorization: Bearer $QL" -H "Content-Type: application/json" -d "{\"part_code\":\"PIN-NK-01\",\"part_name\":\"Pin Nokia loại 1\",\"unit_price\":350000}"
+curl.exe "http://localhost:3000/api/v1/parts/PIN-NK-01" -H "Authorization: Bearer $QL"
+curl.exe -X PATCH "http://localhost:3000/api/v1/parts/PIN-NK-01" -H "Authorization: Bearer $QL" -H "Content-Type: application/json" -d "{\"unit_price\":390000}"
+# Dòng tồn: tạo → đọc → sửa ngưỡng → xoá
+curl.exe -X POST "http://localhost:3000/api/v1/centers/2/stock" -H "Authorization: Bearer $QL" -H "Content-Type: application/json" -d "{\"part_code\":\"PIN-NK-01\",\"min_threshold\":2}"
+curl.exe "http://localhost:3000/api/v1/centers/2/stock/PIN-NK-01" -H "Authorization: Bearer $QL"
+curl.exe -X PATCH "http://localhost:3000/api/v1/centers/2/stock/PIN-NK-01/threshold" -H "Authorization: Bearer $QL" -H "Content-Type: application/json" -d "{\"min_threshold\":5}"
+curl.exe -i -X DELETE "http://localhost:3000/api/v1/centers/2/stock/PIN-NK-01" -H "Authorization: Bearer $QL"
+curl.exe -i -X DELETE "http://localhost:3000/api/v1/parts/PIN-NK-01" -H "Authorization: Bearer $QL"
+```
+
+Phản hồi 201 khi tạo linh kiện: `{"part_code": "PIN-NK-01", "part_name": "Pin Nokia loại 1", "unit_price": 350000}`. Phản hồi 201 khi tạo dòng tồn có cùng hình dạng như một dòng của EP1 (`quantity: 0`, `warning_label: "HẾT HÀNG"` nếu ngưỡng > 0). Xoá thành công trả 204, không có nội dung.
+
+Ví dụ lỗi 409 khi ngừng dùng linh kiện còn tồn:
+
+```json
+{
+  "error": {
+    "code": "STOCK_NOT_EMPTY",
+    "message": "Linh kiện PIN-OP-03 còn tồn ở 2 trung tâm nên chưa ngừng dùng được.",
+    "details": { "part_code": "PIN-OP-03", "centers_with_stock": 2 }
+  }
+}
+```
+
+Test giữ hợp đồng: `tests/part.api.test.js` (linh kiện, 6 test), `tests/stock-crud.api.test.js` (dòng tồn, 4 test), `tests/stock.schema.test.js` (validation).
