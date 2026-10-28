@@ -48,3 +48,21 @@ test('EP6: min_threshold nhận 0, từ chối −1 và chuỗi', () => {
   assert.deepEqual(fieldsOf(() => validate(schemas.thresholdBody, { min_threshold: -1 })), ['min_threshold']);
   assert.deepEqual(fieldsOf(() => validate(schemas.thresholdBody, { min_threshold: '10' })), ['min_threshold']);
 });
+
+test('[giá trị biên] danh mục linh kiện: giá 0 và 999.999.999.999, tên 120 ký tự được nhận; tên bị cắt khoảng trắng', () => {
+  const b = validate(schemas.partCreateBody, { part_code: 'PIN-NK-01', part_name: '  Pin Nokia  ', unit_price: 0 });
+  assert.equal(b.part_name, 'Pin Nokia');
+  assert.equal(validate(schemas.partCreateBody,
+    { part_code: 'PIN-NK-01', part_name: 'x'.repeat(120), unit_price: 999999999999 }).unit_price, 999999999999);
+});
+
+test('[dữ liệu sai] danh mục linh kiện: giá âm/chuỗi/thập phân, tên rỗng/121 ký tự, sửa mã, sửa rỗng đều bị từ chối', () => {
+  assert.deepEqual(fieldsOf(() => validate(schemas.partCreateBody,
+    { part_code: 'pin xm', part_name: '   ', unit_price: -1 })), ['part_code', 'part_name', 'unit_price']);
+  for (const unit_price of ['500000', 1.5, null]) {
+    assert.deepEqual(fieldsOf(() => validate(schemas.partCreateBody,
+      { part_code: 'PIN-NK-01', part_name: 'x'.repeat(121), unit_price })), ['part_name', 'unit_price']);
+  }
+  assert.deepEqual(fieldsOf(() => validate(schemas.partUpdateBody, { part_code: 'PIN-NK-02' })), ['part_code']);
+  assert.deepEqual(fieldsOf(() => validate(schemas.partUpdateBody, {})), ['body']);
+});
