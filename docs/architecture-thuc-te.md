@@ -19,11 +19,11 @@ flowchart TB
 
   subgraph BE["Backend – src/backend (Node.js + Express)"]
     MW["Middleware chung<br/>controllers/request-id.js (X-Request-Id) · CORS · express.json"]
-    L2["Lớp 2 – API<br/>controllers/ (auth.js, auth.controller.js, stock.controller.js, ticket.controller.js, health.controller.js)<br/>validators/stock.schema.js · controllers/error-handler.js (lỗi → mã HTTP, ghi log một lần)"]
-    L3["Lớp 3 – Nghiệp vụ<br/>services/ (stock.service.js, ticket.service.js, stock.contract.js, auth.service.js, password.js)"]
-    L4["Lớp 4 – Truy cập dữ liệu<br/>repositories/ (stock.repository.js, user.repository.js)"]
+    L2["Lớp 2 – API<br/>controllers/ (auth.js, auth.controller.js, stock.controller.js, part.controller.js, ticket.controller.js, health.controller.js)<br/>validators/stock.schema.js · controllers/error-handler.js (lỗi → mã HTTP, ghi log một lần)"]
+    L3["Lớp 3 – Nghiệp vụ<br/>services/ (stock.service.js, part.service.js, ticket.service.js, stock.contract.js, auth.service.js, password.js)"]
+    L4["Lớp 4 – Truy cập dữ liệu<br/>repositories/ (stock.repository.js, part.repository.js, user.repository.js)"]
     I["Tích hợp với L2<br/>integrations/ticket.integration.js (chỉ đọc phiếu)"]
-    L5["Lớp 5 – CSDL<br/>db/connection.js (pool, thời gian chờ, bắt lỗi kết nối rảnh)<br/>wait-for-db.js · migrate.js · migrations/ 001–003 · seed/"]
+    L5["Lớp 5 – CSDL<br/>db/connection.js (pool, thời gian chờ, bắt lỗi kết nối rảnh)<br/>wait-for-db.js · migrate.js · migrations/ 001–004 · seed/"]
     LOG["Dùng chung<br/>logger.js (log JSON ra stdout, che dữ liệu nhạy cảm) · errors.js (AppError)"]
     MW --> L2
     L2 --> L3
@@ -33,7 +33,7 @@ flowchart TB
     I --> L5
   end
 
-  DB[("PostgreSQL 16<br/>service_center · part · part_stock · part_transaction<br/>ticket · ticket_status_log (của L2) · app_user")]
+  DB[("PostgreSQL 16<br/>service_center · part · part_stock (is_active: xoá mềm) · part_transaction<br/>ticket · ticket_status_log (của L2) · app_user")]
 
   A -- "HTTP JSON + Bearer token<br/>VITE_API_BASE_URL (Docker: /api cùng nguồn)" --> MW
   L5 --> DB
