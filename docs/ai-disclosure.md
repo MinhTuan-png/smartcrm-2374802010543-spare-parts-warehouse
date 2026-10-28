@@ -35,4 +35,4 @@ Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ n
 | Không dùng | Chụp ảnh kết quả chạy, cài Docker Desktop và chạy thử bằng Docker | `docs/screenshots/` | Không áp dụng |
 | Không dùng | Hỏi giảng viên về mâu thuẫn giữa tiêu chí S1 và QT-13; tạo commit, push, gắn tag `v0.2` | Repo GitHub | Không áp dụng |
 
-Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp. Trần Huỳnh Minh Tuấn - 2374802010543 - 27/10/2026
+Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp. Trần Huỳnh Minh Tuấn - 2374802010543 - 28/10/2026
