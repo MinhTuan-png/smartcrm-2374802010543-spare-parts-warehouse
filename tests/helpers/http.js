@@ -27,7 +27,8 @@ async function call(method, url, { token, body } = {}) {
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  return { status: res.status, body: await res.json() };
+  // 204 (xoá) không có nội dung: body = null
+  return { status: res.status, body: res.status === 204 ? null : await res.json() };
 }
 
 module.exports = { start, stop, call, technician, manager, base: () => base };
