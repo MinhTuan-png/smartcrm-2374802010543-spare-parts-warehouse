@@ -14,7 +14,7 @@ Chạy trực tiếp bằng Node (mục 3.2) cần:
 
 - Node.js 22 LTS (tối thiểu 20; Node 20 đã hết hạn hỗ trợ từ 04/2026), npm 10 trở lên (kiểm tra bằng `node -v` và `npm -v`)
 - PostgreSQL 16 (hoặc 14 trở lên), đã tạo CSDL tên `smartcrm`
-- Thư viện backend (cài đúng phiên bản trong `package-lock.json` bằng `npm ci`): `express`, `pg`, `dotenv`, `csv-parse`, `zod` (kiểm tra đầu vào), `jsonwebtoken` (đọc token)
+- Thư viện backend (cài đúng phiên bản trong `package-lock.json` bằng `npm ci`): `express`, `pg`, `dotenv`, `csv-parse`, `zod` (kiểm tra đầu vào), `jsonwebtoken` (ký và đọc token)
 - Thư viện frontend (cài bằng `npm ci` trong `src/frontend`): `react`, `react-dom`, `vite`
 - Biến môi trường: mọi biến có trong `.env.example` kèm giá trị mẫu và chú thích (`DB_*`, `APP_PORT`, `SECRET_KEY`, `CORS_ORIGIN`, `DEMO_PASSWORD`, `LOG_LEVEL`, `DB_CONNECT_TIMEOUT_MS`, `LOCAL_DATA_DIR`, `DATA_DIR`, `WEB_PORT`, `TEST_DB_NAME`...) và `src/frontend/.env.example` (`VITE_API_BASE_URL`)
 - Dữ liệu: repo có sẵn dữ liệu mẫu nhỏ trong `data-mau/` (xem `data-mau/README.md`), Docker tự nạp thư mục này. Dataset đầy đủ lấy từ `CDTN1_Mekong Mobile_Dataset Smart CRM.zip`, đặt trong thư mục `data/` ở gốc repo (không commit): bắt buộc `service_centers.csv`, `parts.csv`, `part_stock.csv`; thêm `tickets_history.csv` và `part_transactions.csv` để có phiếu cho chức năng xuất kho
@@ -160,6 +160,8 @@ curl.exe -X POST "http://localhost:3000/api/v1/centers/2/stock/imports" -H "Auth
 curl.exe -X PATCH "http://localhost:3000/api/v1/centers/2/stock/LOA-SS-01/threshold" -H "Authorization: Bearer $QL" -H "Content-Type: application/json" -d "{\"min_threshold\":10}"
 ```
 
+CRUD đủ cho hai thực thể linh kiện (`/api/v1/parts`) và dòng tồn (`/api/v1/centers/{id}/stock`), kèm lệnh curl thử từng thao tác: [`docs/api-contract.md`](docs/api-contract.md) mục 1.15.
+
 Đặc tả đầy đủ nằm trong [`docs/api-contract.md`](docs/api-contract.md). Ảnh kết quả chạy lưu trong `docs/screenshots/`.
 
 **Bước 7. Chạy test**
@@ -176,7 +178,7 @@ CREATE DATABASE smartcrm_test;
 npm test
 ```
 
-Kết quả đúng: `# tests 60`, `# pass 60`. Không kết nối được CSDL test thì 25 test tích hợp được bỏ qua (`# skipped 25`), 35 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
+Kết quả đúng: `# tests 72`, `# pass 72`. Không kết nối được CSDL test thì 35 test tích hợp được bỏ qua (`# skipped 35`), 37 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
 
 ### 3.3. Cách 2: chạy trực tiếp bằng Node – giao diện
 
@@ -221,13 +223,14 @@ smartcrm-2374802010543-spare-parts-warehouse/
 ├── data-mau/                    # Dữ liệu mẫu nhỏ đi kèm repo, Docker tự nạp (xem data-mau/README.md)
 ├── docs/
 │   ├── export/                  # Hình xuất từ các sơ đồ
-│   ├── screenshots/             # Ảnh kết quả chạy buổi 8
+│   ├── screenshots/             # Ảnh kết quả chạy buổi 8 và buổi 10
 │   ├── ai-disclosure.md
 │   ├── architecture-thuc-te.md  # Sơ đồ kiến trúc đã hiện thực (BT2)
 │   ├── api-contract.md
 │   ├── bug-log.md               # Nhật ký lỗi đã gỡ theo bốn bước (BT3)
 │   ├── architecture.drawio
 │   ├── erd.drawio
+│   ├── schema.sql               # DDL theo BT1 (bản đang chạy: src/backend/db/migrations/)
 │   ├── srs.md
 │   ├── thay-doi-thiet-ke.md
 │   ├── use-case.drawio
@@ -239,7 +242,7 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   │   ├── services/            # Lớp 3 – Nghiệp vụ (QT-09, QT-14, QT-L5-01, QT-L5-02) và stock.contract.js
 │   │   ├── repositories/        # Lớp 4 – Truy cập dữ liệu: chỉ có SQL
 │   │   ├── integrations/        # Tích hợp với L2: đọc phiếu, đổi mã trạng thái sang tên có dấu
-│   │   ├── db/                  # Lớp 5 – CSDL: kết nối, wait-for-db.js, migrations/ (001–003), seed/ (dữ liệu + tài khoản mẫu)
+│   │   ├── db/                  # Lớp 5 – CSDL: kết nối, wait-for-db.js, migrations/ (001–004), seed/ (dữ liệu + tài khoản mẫu)
 │   │   ├── scripts/             # make-token.js, run-tests.js
 │   │   ├── app.js               # Dựng ứng dụng Express (test dùng lại)
 │   │   ├── errors.js
@@ -311,7 +314,7 @@ Buổi 9:
 - [x] Seed thêm phiếu và giao dịch lịch sử (tuỳ chọn, nếu có file CSV)
 - [x] 47 test backend: unit test lớp nghiệp vụ (QT-09, QT-14, QT-L5-02, không cần CSDL), hợp đồng, giá trị biên, dữ liệu sai, đăng nhập, xác thực, tích hợp, NFR3 (20 yêu cầu đồng thời), NFR5 (403); 4 test hợp đồng phía giao diện
 - [x] Giao diện React theo đúng ba màn hình của wireframe (TD-17) gọi API thật, đủ 3 trạng thái đang tải / rỗng / lỗi, không tràn ngang ở 375px
-- [ ] Đề BT2 mục S1 (≥ 2 thực thể đủ CRUD) mâu thuẫn với QT-13 (không xoá) và WON'T quản trị danh mục của SRS: đang hỏi giảng viên
+- [x] Đề BT2 mục S1 (≥ 2 thực thể đủ CRUD): linh kiện và dòng tồn, "xoá" là ngừng dùng để giữ QT-13; 12 test mới, tổng 72 (TD-21, api-contract mục 1.15)
 - [x] Màn hình 2: tra cứu phiếu (bản chỉ đọc của EP-L2) và bảng linh kiện đã dùng (EP8, UC10) (TD-17)
 - [ ] Để sau: báo thiếu linh kiện (UC5, EP5); lịch sử giao dịch kho ở Màn hình 3 (UC8, EP7)
 
