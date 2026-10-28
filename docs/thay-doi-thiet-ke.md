@@ -126,3 +126,9 @@
 - Vì sao : Ba thứ mọi dòng log phải có và thứ tuyệt đối không được ghi (lý thuyết buổi 11); log ra stdout để `docker compose logs` đọc được, không mất khi xoá container.
 - Ảnh hưởng : Không đổi API. `npm test` tắt log server (`LOG_LEVEL=silent`) để kết quả test dễ đọc.
 
+## Bài tập 2 – Bổ sung tiêu chí S1 (ngày 27/10/2026)
+
+### TD-21 CRUD cho linh kiện và dòng tồn, "xoá" là ngừng dùng
+- Thay đổi gì : Thêm `GET/POST /api/v1/parts`, `GET/PATCH/DELETE /api/v1/parts/{part_code}` (danh mục linh kiện) và `POST /api/v1/centers/{id}/stock`, `DELETE /api/v1/centers/{id}/stock/{part_code}` (dòng tồn; đọc và sửa ngưỡng đã có ở EP1, EP6). Migration `004_soft_delete.sql` thêm cột `is_active` cho `part` và `part_stock`. Thêm hai mã lỗi 409: `ALREADY_EXISTS`, `STOCK_NOT_EMPTY`. Đặc tả ở api-contract mục 1.15.
+- Vì sao : Đề BT2, track SE, tiêu chí S1 yêu cầu ít nhất 2 thực thể có đủ CRUD. SRS của L5 không có thao tác xoá (QT-13) và để quản trị danh mục ở WON'T, nên mục này để mở từ buổi 9 trong lúc chờ hỏi giảng viên. Cách giải: QT-13 cấm xoá VẬT LÝ, nên "xoá" được hiện thực là ngừng dùng; dòng vẫn còn, sổ giao dịch và EP8 không mất dữ liệu. Chỉ ngừng dùng được khi tồn bằng 0, và số lượng tồn vẫn chỉ đổi qua nhập/xuất kho (QT-L5-01), nên các quy tắc cũ giữ nguyên.
+- Ảnh hưởng : Mục WON'T "quản trị danh mục" trong SRS được làm ở mức tối thiểu cho S1 (không có giao diện, gọi bằng API). Tra cứu tồn, xuất, nhập, đặt ngưỡng bỏ qua thứ đã ngừng dùng (404). Thay đổi tương thích: endpoint cũ giữ nguyên hình dạng. CORS cho phép thêm phương thức DELETE. Thêm 12 test (72 tổng).
