@@ -22,6 +22,14 @@ router.get('/', wrap(async (req, res) => {
   res.json(await service.listStock({ centerId: req.centerId, q, lowOnly, page }));
 }));
 
+// Thêm dòng tồn (tồn 0) cho linh kiện có trong danh mục — chỉ quản lý (TD-21)
+router.post('/', managerOnly, wrap(async (req, res) => {
+  const b = validate(schemas.stockCreateBody, req.body);
+  res.status(201).json(await service.createStock({
+    centerId: req.centerId, partCode: b.part_code, minThreshold: b.min_threshold,
+  }));
+}));
+
 // EP4 (FR6): danh sách sắp hết. Khai báo TRƯỚC '/:partCode' để "low" không bị hiểu là mã linh kiện.
 router.get('/low', wrap(async (req, res) => {
   const { page } = validate(schemas.lowQuery, req.query);
@@ -56,6 +64,13 @@ router.patch('/:partCode/threshold', managerOnly, wrap(async (req, res) => {
   const { partCode } = validate(schemas.partCodeParam, req.params);
   const { min_threshold: value } = validate(schemas.thresholdBody, req.body);
   res.json(await service.setThreshold(req.centerId, partCode, value));
+}));
+
+// Xoá = ngừng dùng dòng tồn khi tồn 0 (QT-13) — chỉ quản lý (TD-21)
+router.delete('/:partCode', managerOnly, wrap(async (req, res) => {
+  const { partCode } = validate(schemas.partCodeParam, req.params);
+  await service.deleteStock(req.centerId, partCode);
+  res.sendStatus(204);
 }));
 
 module.exports = router;
