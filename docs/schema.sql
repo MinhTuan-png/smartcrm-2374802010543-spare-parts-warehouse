@@ -1,3 +1,6 @@
+-- DDL theo báo cáo BT1 (mục 4.2), giữ để đối chiếu với báo cáo.
+-- Bản CSDL đang chạy là các migration trong src/backend/db/migrations/ (001–004):
+-- thêm app_user (TD-14) và cột is_active cho part, part_stock (TD-21).
 CREATE TABLE service_center (
     center_id    BIGSERIAL PRIMARY KEY,
     center_code  VARCHAR(10) NOT NULL UNIQUE,
