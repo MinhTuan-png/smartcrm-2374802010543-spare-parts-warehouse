@@ -4,6 +4,7 @@ const express = require('express');
 const stockController = require('./controllers/stock.controller');
 const authController = require('./controllers/auth.controller');
 const ticketController = require('./controllers/ticket.controller');
+const partController = require('./controllers/part.controller');
 const healthController = require('./controllers/health.controller');
 const errorHandler = require('./controllers/error-handler');
 const requestId = require('./controllers/request-id');
@@ -27,7 +28,7 @@ app.use((req, res, next) => {
     res.set({
       'Access-Control-Allow-Origin': origin,
       'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
       Vary: 'Origin',
     });
     if (req.method === 'OPTIONS') return res.sendStatus(204);
@@ -42,6 +43,7 @@ app.use('/health', healthController); // kiểm tra sống cho docker-compose, k
 app.use('/api/v1/auth', authController);
 app.use('/api/v1/centers/:centerId/stock', stockController); // theo docs/api-contract.md
 app.use('/api/v1/tickets', ticketController);
+app.use('/api/v1/parts', partController); // danh mục linh kiện (TD-21)
 
 // Đường dẫn không có: trả cùng định dạng lỗi thay vì trang HTML mặc định của Express.
 app.use((req, res, next) => next(new AppError('NOT_FOUND', 'Không tìm thấy đường dẫn API này.')));
