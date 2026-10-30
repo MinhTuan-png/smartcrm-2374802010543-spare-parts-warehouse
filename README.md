@@ -27,11 +27,9 @@ Có hai cách. Cách 1 (Docker) chỉ cần hai lệnh và không phải cài g�
 ### 3.0. Tải mã nguồn (cả hai cách đều cần)
 
 ```bash
-git clone --branch v0.2 https://github.com/MinhTuan-png/smartcrm-2374802010543-spare-parts-warehouse.git
+git clone https://github.com/MinhTuan-png/smartcrm-2374802010543-spare-parts-warehouse.git
 cd smartcrm-2374802010543-spare-parts-warehouse
 ```
-
-`--branch v0.2` lấy đúng bản đã gắn tag nộp bài. Các lệnh bên dưới chạy trong thư mục vừa clone (gọi là "thư mục gốc repo").
 
 ### 3.1. Cách 1: Docker, hai lệnh (khuyến nghị)
 
@@ -52,7 +50,7 @@ curl http://localhost:3000/health     # {"status":"ok","db":"ok"}   (PowerShell:
 docker compose logs api --tail 20     # log dạng JSON, mỗi yêu cầu có requestId
 ```
 
-Mở `http://localhost:8080` và đăng nhập `ktv2` hoặc `quanly2`, mật khẩu là `DEMO_PASSWORD` trong `.env` (mặc định `matkhau-demo-2026`; đổi giá trị này sau khi đã seed thì phải seed lại, xem mục 3.4). Dữ liệu mẫu có đủ 6 trung tâm, 180 linh kiện, 717 dòng tồn, 360 phiếu (có `BH-000002/2025` để thử xuất kho).
+Mở `http://localhost:8080` và đăng nhập `ktv2` hoặc `quanly2`, mật khẩu là `DEMO_PASSWORD` trong `.env` (mặc định `matkhau-demo-2026`; đổi giá trị này sau khi đã seed thì phải seed lại, xem mục 3.5). Dữ liệu mẫu có đủ 6 trung tâm, 180 linh kiện, 717 dòng tồn, 360 phiếu (có `BH-000002/2025` để thử xuất kho).
 
 **Các lệnh hay dùng**
 
@@ -70,7 +68,7 @@ Mở `http://localhost:8080` và đăng nhập `ktv2` hoặc `quanly2`, mật kh
 **Thử suy giảm có kiểm soát:** `docker compose stop db` thì API vẫn chạy và trả 503 kèm mã tra cứu, giao diện hiện lỗi có nút Thử lại; `docker compose start db` là dùng lại được ngay, không phải khởi động lại API.
 
 ### 3.2. Cách 2: chạy trực tiếp bằng Node 
-Backend
+BACKEND
 
 Mở terminal tại thư mục gốc của dự án.
 
@@ -110,29 +108,37 @@ Copy-Item .env.example .env
 4. **Lưu ý:** Không commit hoặc đẩy file `.env` lên GitHub vì file này chứa thông tin đăng nhập database và khóa bí mật. Đảm bảo `.env` đã được thêm vào `.gitignore`.
 
 
-**Bước 3. Chép dữ liệu mẫu**
+**Bước 3. Chọn dữ liệu để nạp** (chọn một trong hai)
 
-Dataset đầy đủ không nằm trong repo. Muốn chạy nhanh với dữ liệu mẫu nhỏ có sẵn thì bỏ qua bước này và ở Bước 5 chạy `npm run seed` với `DATA_DIR=data-mau` trong `.env`. Dùng dataset đầy đủ: giải nén file `CDTN1_Mekong Mobile_Dataset Smart CRM.zip` (dataset của môn học), tạo thư mục `data/` ở gốc repo rồi chép đủ 5 file CSV vào đó: `service_centers.csv`, `parts.csv`, `part_stock.csv`, `tickets_history.csv`, `part_transactions.csv` (thư mục này không commit, xem `.gitignore`):
+- **Dữ liệu mẫu nhỏ (nên dùng để chạy thử):** đã có sẵn trong repo, thư mục `data-mau/`, không phải tải hay chép gì. Chỉ cần mở file `.env` ở gốc repo và đặt dòng `DATA_DIR` như sau:
 
-```powershell
-New-Item -ItemType Directory data
-```
+  ```env
+  DATA_DIR=data-mau
+  ```
+
+- **Dữ liệu đầy đủ:** giải nén file `CDTN1_Mekong Mobile_Dataset Smart CRM.zip` (dataset của môn học), tạo thư mục `data` ở gốc repo rồi chép 5 file CSV vào đó: `service_centers.csv`, `parts.csv`, `part_stock.csv`, `tickets_history.csv`, `part_transactions.csv`. Giữ nguyên `DATA_DIR=` để trống trong `.env` (trống nghĩa là đọc thư mục `data/`). Thư mục `data/` không được commit lên GitHub.
+
+  ```powershell
+  New-Item -ItemType Directory data
+  ```
 
 **Bước 4. Tạo CSDL** (một lần)
 
-Lệnh dưới đây là lệnh SQL, chạy trong PostgreSQL không gõ thẳng vào Terminal. Cách 1: mở pgAdmin. Ở cột trái mở **Servers**, bấm vào server và nhập mật khẩu của người dùng `postgres` (mật khẩu đặt lúc cài PostgreSQL; chưa nhập thì chưa mở được các mục bên dưới). Mở **Databases**, chuột phải vào **postgres**, chọn **Query Tool** (mục này nằm ở menu chuột phải của *cơ sở dữ liệu*, không phải của server), dán lệnh rồi bấm nút ▶.
+Tên CSDL phải là `smartcrm`, trùng `DB_NAME` trong `.env`. Chọn một trong hai cách.
 
-```sql
-CREATE DATABASE smartcrm;
-```
+*Cách 1: dùng pgAdmin.*
 
-Tên CSDL này phải trùng `DB_NAME` trong `.env`. Nếu máy bạn đã có sẵn CSDL cùng tên từ trước thì bỏ qua bước này (xem mục 3.4).
+1. Mở pgAdmin. Ở cột trái, bấm vào **Servers** rồi bấm vào server **PostgreSQL** và nhập mật khẩu của người dùng `postgres` (mật khẩu đặt lúc cài PostgreSQL). Chưa nhập thì chưa mở được các mục bên dưới.
+2. Chuột phải vào mục **Databases** , chọn **Create** rồi chọn **Database...**.
+3. Ở ô **Database**, gõ `smartcrm`, rồi bấm **Save**. CSDL `smartcrm` xuất hiện trong danh sách **Databases** là xong.
 
-Cách 2: chạy thẳng từ PowerShell bằng `psql` (nhập mật khẩu của người dùng PostgreSQL ban đầu của bạn khi được hỏi):
+*Cách 2: dùng `psql` trong PowerShell* (nhập mật khẩu của người dùng `postgres` khi được hỏi):
 
 ```powershell
 psql -U postgres -c "CREATE DATABASE smartcrm;"
 ```
+
+Nếu máy bạn đã có sẵn CSDL cùng tên từ trước thì bỏ qua bước này (xem mục 3.5).
 
 **Bước 5. Tạo bảng và nạp dữ liệu danh mục**
 
@@ -142,7 +148,7 @@ npm run migrate
 npm run seed
 ```
 
-Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part_stock: 717` dòng, `app_user: 12` (tài khoản mẫu, cần `DEMO_PASSWORD` trong `.env`); có thêm hai file phiếu và giao dịch thì `ticket: 7800`, `part_transaction: 4954`. Hai lệnh này chạy lại được. Seed cần đã chép đủ 5 file CSV ở Bước 3: thiếu file thì báo lỗi `ENOENT` và hoàn tác; chỉ có 3 file đầu thì vẫn nạp được danh mục nhưng không có phiếu để thử xuất kho. Nếu seed báo không thấy cột của `tickets_history.csv` hoặc `part_transactions.csv`, nó in header thật của file; thêm tên cột đó vào bảng `TICKET_COL` / `TXN_COL` trong `src/backend/db/seed/seed-tickets.js`.
+Kết quả đúng của `npm run seed`: `service_center: 6`, `part: 180`, `part_stock: 717` dòng, `app_user: 12` (tài khoản mẫu, cần `DEMO_PASSWORD` trong `.env`); có thêm hai file phiếu và giao dịch thì `ticket: 7800`, `part_transaction: 4954`. Hai lệnh này chạy lại được. Seed đọc thư mục đã chọn ở Bước 3: thiếu file bắt buộc thì báo lỗi `ENOENT` và hoàn tác; chỉ có 3 file đầu thì vẫn nạp được danh mục nhưng không có phiếu để thử xuất kho. Dùng `data-mau/` thì số liệu nhỏ hơn: `ticket: 360` (xem mục 3.1). Nếu seed báo không thấy cột của `tickets_history.csv` hoặc `part_transactions.csv`, nó in header thật của file; thêm tên cột đó vào bảng `TICKET_COL` / `TXN_COL` trong `src/backend/db/seed/seed-tickets.js`.
 
 **Bước 6. Chạy server**
 
@@ -174,26 +180,9 @@ curl.exe -X PATCH "http://localhost:3000/api/v1/centers/2/stock/LOA-SS-01/thresh
 
 CRUD đủ cho hai thực thể linh kiện (`/api/v1/parts`) và dòng tồn (`/api/v1/centers/{id}/stock`), kèm lệnh curl thử từng thao tác: [`docs/api-contract.md`](docs/api-contract.md) mục 1.15.
 
-Đặc tả đầy đủ nằm trong [`docs/api-contract.md`](docs/api-contract.md). Ảnh kết quả chạy lưu trong `docs/screenshots/`.
-
-**Bước 7. Chạy test**
-
-Test dùng một CSDL riêng, tên phải kết thúc bằng `_test` (mặc định `smartcrm_test`) vì mỗi test xoá sạch và tự nạp dữ liệu mẫu nhỏ; không cần thư mục `data/`.
-
-Tạo CSDL test trong PostgreSQL, cách làm như Bước 4 (pgAdmin Query Tool hoặc `psql -U postgres -c "CREATE DATABASE smartcrm_test;"`):
-
-```sql
-CREATE DATABASE smartcrm_test;
-```
-
-```powershell
-npm test
-```
-
-Kết quả đúng: `# tests 72`, `# pass 72`. Không kết nối được CSDL test thì 35 test tích hợp được bỏ qua (`# skipped 35`), 37 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
 
 ### 3.3. Cách 2: chạy trực tiếp bằng Node 
-Frontend
+FRONTEND
 
 Backend phải đang chạy (Bước 6) và `.env` ở gốc có `CORS_ORIGIN=http://localhost:5173,http://localhost:5174` (đã có sẵn trong `.env.example`).
 
@@ -204,11 +193,29 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-Mở `http://localhost:5173` và đăng nhập bằng tài khoản mẫu do `npm run seed` tạo: `ktv2` (kỹ thuật viên trung tâm 2) hoặc `quanly2` (quản lý trung tâm 2), mật khẩu là giá trị `DEMO_PASSWORD` trong `.env`. Mỗi trung tâm có một cặp tương tự (`ktv1`, `quanly1`...). Giao diện theo ba màn hình của wireframe: Kỹ thuật viên thấy Tồn kho (Màn hình 1, có ô lọc sắp hết) và Xuất linh kiện (Màn hình 2, có tra cứu phiếu và linh kiện đã dùng); Quản lý thấy Tồn kho (có Sửa ngưỡng) và Nhập kho (Màn hình 3). Test hợp đồng phía giao diện: `npm test` trong `src/frontend`.
+Mở `http://localhost:5173` và đăng nhập bằng tài khoản mẫu do `npm run seed` tạo: `ktv2` (kỹ thuật viên trung tâm 2) hoặc `quanly2` (quản lý trung tâm 2), mật khẩu là `matkhau-demo-2026` trong `.env`. Mỗi trung tâm có một cặp tương tự (`ktv1`, `quanly1`...). Giao diện theo ba màn hình của wireframe: Kỹ thuật viên thấy Tồn kho (Màn hình 1, có ô lọc sắp hết) và Xuất linh kiện (Màn hình 2, có tra cứu phiếu và linh kiện đã dùng); Quản lý thấy Tồn kho (có Sửa ngưỡng) và Nhập kho (Màn hình 3). Test hợp đồng phía giao diện: `npm test` trong `src/frontend`.
 
-Token lưu trong `localStorage` của trình duyệt: chấp nhận ở mức prototype vì giao diện không hiển thị HTML do người dùng nhập; hạn chế là nếu trang có lỗ hổng XSS thì token có thể bị đọc. API trả 401 thì giao diện xoá token và quay về trang đăng nhập.
 
-### 3.4. Khắc phục sự cố thường gặp
+### 3.4. Chạy test (làm sau khi backend và frontend đã chạy)
+
+Test dùng một CSDL riêng, tên phải kết thúc bằng `_test` (mặc định `smartcrm_test`) vì mỗi test xoá sạch và tự nạp dữ liệu mẫu nhỏ; không cần thư mục `data/`.
+
+Tạo CSDL test `smartcrm_test` giống Bước 4 (pgAdmin: chuột phải **Databases** > **Create** > **Database...**, hoặc `psql`):
+
+```powershell
+psql -U postgres -c "CREATE DATABASE smartcrm_test;"
+```
+
+Rồi chạy test của backend:
+
+```powershell
+cd src/backend
+npm test
+```
+
+Kết quả đúng: `# tests 72`, `# pass 72`. Không kết nối được CSDL test thì 35 test tích hợp được bỏ qua (`# skipped 35`), 37 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
+
+### 3.5. Khắc phục sự cố thường gặp
 
 | Hiện tượng | Nguyên nhân | Cách sửa |
 |---|---|---|
@@ -271,18 +278,27 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   │   ├── errors.js
 │   │   ├── logger.js            # Log JSON ra stdout, che trường nhạy cảm
 │   │   ├── index.js             # Khởi động server
+│   │   ├── .dockerignore
 │   │   ├── Dockerfile           # Ảnh backend: hai giai đoạn, người dùng không đặc quyền, HEALTHCHECK
 │   │   ├── package-lock.json
 │   │   └── package.json
 │   └── frontend/                # React + Vite
-│       ├── src/api/             # Lớp gọi API: client.js, stock.api.js, stock.view.js (ranh giới API → giao diện)
-│       ├── src/hooks/           # useApi: trạng thái đang tải / lỗi / dữ liệu
-│       ├── src/components/      # DataState (3 trạng thái), ErrorBox, ErrorLine, WarningBadge, PartPicker
-│       ├── src/pages/           # Một tệp một màn hình: Login, Stock, Export, Import
+│       ├── src/
+│       │   ├── api/             # Lớp gọi API: client.js, session.js, stock.api.js, stock.view.js (+ stock.view.test.js)
+│       │   ├── hooks/           # useApi: trạng thái đang tải / lỗi / dữ liệu
+│       │   ├── components/      # DataState (3 trạng thái), ErrorBox, ErrorLine, WarningBadge, PartPicker
+│       │   ├── pages/           # Một tệp một màn hình: Login, Stock, Export, Import
+│       │   ├── App.jsx
+│       │   ├── main.jsx
+│       │   └── styles.css
+│       ├── .dockerignore
 │       ├── .env.example
 │       ├── Dockerfile           # Dựng giao diện rồi phục vụ bằng nginx
+│       ├── index.html
 │       ├── nginx.conf           # Chuyển /api sang dịch vụ api
-│       └── package.json
+│       ├── package-lock.json
+│       ├── package.json
+│       └── vite.config.js
 ├── tests/                       # node:test – hợp đồng, validation, xác thực, tích hợp (NFR3, NFR5)
 ├── .env                         # Cấu hình cục bộ; KHÔNG commit
 ├── .env.example                 # Mẫu cấu hình môi trường, đủ mọi biến
