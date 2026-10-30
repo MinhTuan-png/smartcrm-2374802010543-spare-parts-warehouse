@@ -24,6 +24,15 @@ Chạy trực tiếp bằng Node (mục 3.2) cần:
 
 Có hai cách. Cách 1 (Docker) chỉ cần hai lệnh và không phải cài gì ngoài Docker; cách 2 chạy trực tiếp bằng Node trên máy.
 
+### 3.0. Tải mã nguồn (cả hai cách đều cần)
+
+```bash
+git clone --branch v0.2 https://github.com/MinhTuan-png/smartcrm-2374802010543-spare-parts-warehouse.git
+cd smartcrm-2374802010543-spare-parts-warehouse
+```
+
+`--branch v0.2` lấy đúng bản đã gắn tag nộp bài. Các lệnh bên dưới chạy trong thư mục vừa clone (gọi là "thư mục gốc repo").
+
 ### 3.1. Cách 1: Docker, hai lệnh (khuyến nghị)
 
 Mở terminal tại thư mục gốc repo vừa clone:
@@ -43,7 +52,7 @@ curl http://localhost:3000/health     # {"status":"ok","db":"ok"}   (PowerShell:
 docker compose logs api --tail 20     # log dạng JSON, mỗi yêu cầu có requestId
 ```
 
-Mở `http://localhost:8080` và đăng nhập `ktv2` hoặc `quanly2`, mật khẩu là `DEMO_PASSWORD` trong `.env` (mặc định `matkhau-demo-2026`). Dữ liệu mẫu có đủ 6 trung tâm, 180 linh kiện, 717 dòng tồn, 360 phiếu (có `BH-000002/2025` để thử xuất kho).
+Mở `http://localhost:8080` và đăng nhập `ktv2` hoặc `quanly2`, mật khẩu là `DEMO_PASSWORD` trong `.env` (mặc định `matkhau-demo-2026`; đổi giá trị này sau khi đã seed thì phải seed lại, xem mục 3.4). Dữ liệu mẫu có đủ 6 trung tâm, 180 linh kiện, 717 dòng tồn, 360 phiếu (có `BH-000002/2025` để thử xuất kho).
 
 **Các lệnh hay dùng**
 
@@ -60,7 +69,8 @@ Mở `http://localhost:8080` và đăng nhập `ktv2` hoặc `quanly2`, mật kh
 
 **Thử suy giảm có kiểm soát:** `docker compose stop db` thì API vẫn chạy và trả 503 kèm mã tra cứu, giao diện hiện lỗi có nút Thử lại; `docker compose start db` là dùng lại được ngay, không phải khởi động lại API.
 
-### 3.2. Cách 2: chạy trực tiếp bằng Node – backend
+### 3.2. Cách 2: chạy trực tiếp bằng Node 
+Backend
 
 Mở terminal tại thư mục gốc của dự án.
 
@@ -110,11 +120,13 @@ New-Item -ItemType Directory data
 
 **Bước 4. Tạo CSDL** (một lần)
 
-Lệnh dưới đây là lệnh SQL, chạy trong PostgreSQL không gõ thẳng vào Terminal. Cách 1: mở pgAdmin, chuột phải vào server chọn Query Tool, dán lệnh rồi chạy.
+Lệnh dưới đây là lệnh SQL, chạy trong PostgreSQL không gõ thẳng vào Terminal. Cách 1: mở pgAdmin. Ở cột trái mở **Servers**, bấm vào server và nhập mật khẩu của người dùng `postgres` (mật khẩu đặt lúc cài PostgreSQL; chưa nhập thì chưa mở được các mục bên dưới). Mở **Databases**, chuột phải vào **postgres**, chọn **Query Tool** (mục này nằm ở menu chuột phải của *cơ sở dữ liệu*, không phải của server), dán lệnh rồi bấm nút ▶.
 
 ```sql
 CREATE DATABASE smartcrm;
 ```
+
+Tên CSDL này phải trùng `DB_NAME` trong `.env`. Nếu máy bạn đã có sẵn CSDL cùng tên từ trước thì bỏ qua bước này (xem mục 3.4).
 
 Cách 2: chạy thẳng từ PowerShell bằng `psql` (nhập mật khẩu của người dùng PostgreSQL ban đầu của bạn khi được hỏi):
 
@@ -180,7 +192,8 @@ npm test
 
 Kết quả đúng: `# tests 72`, `# pass 72`. Không kết nối được CSDL test thì 35 test tích hợp được bỏ qua (`# skipped 35`), 37 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
 
-### 3.3. Cách 2: chạy trực tiếp bằng Node – giao diện
+### 3.3. Cách 2: chạy trực tiếp bằng Node 
+Frontend
 
 Backend phải đang chạy (Bước 6) và `.env` ở gốc có `CORS_ORIGIN=http://localhost:5173,http://localhost:5174` (đã có sẵn trong `.env.example`).
 
@@ -194,6 +207,16 @@ npm run dev
 Mở `http://localhost:5173` và đăng nhập bằng tài khoản mẫu do `npm run seed` tạo: `ktv2` (kỹ thuật viên trung tâm 2) hoặc `quanly2` (quản lý trung tâm 2), mật khẩu là giá trị `DEMO_PASSWORD` trong `.env`. Mỗi trung tâm có một cặp tương tự (`ktv1`, `quanly1`...). Giao diện theo ba màn hình của wireframe: Kỹ thuật viên thấy Tồn kho (Màn hình 1, có ô lọc sắp hết) và Xuất linh kiện (Màn hình 2, có tra cứu phiếu và linh kiện đã dùng); Quản lý thấy Tồn kho (có Sửa ngưỡng) và Nhập kho (Màn hình 3). Test hợp đồng phía giao diện: `npm test` trong `src/frontend`.
 
 Token lưu trong `localStorage` của trình duyệt: chấp nhận ở mức prototype vì giao diện không hiển thị HTML do người dùng nhập; hạn chế là nếu trang có lỗ hổng XSS thì token có thể bị đọc. API trả 401 thì giao diện xoá token và quay về trang đăng nhập.
+
+### 3.4. Khắc phục sự cố thường gặp
+
+| Hiện tượng | Nguyên nhân | Cách sửa |
+|---|---|---|
+| `password authentication failed for user ...` (mã 28P01) khi `npm run migrate` hoặc `npm start` | `DB_USER` hoặc `DB_PASSWORD` trong `.env` không khớp tài khoản PostgreSQL thật trên máy | Sửa `.env` cho đúng. Quên mật khẩu thì đặt lại: `psql -U postgres -c "ALTER USER <tên> PASSWORD '<mật khẩu mới>';"` rồi điền vào `.env`. Với Docker, `DB_PORT` phía máy là 5433 |
+| Đăng nhập báo "Tên đăng nhập hoặc mật khẩu không đúng" dù đã gõ `matkhau-demo-2026` | Mật khẩu tài khoản mẫu chỉ được ghi lúc seed lần đầu, seed chạy lại **không ghi đè** (`ON CONFLICT DO NOTHING`). Seed lúc `DEMO_PASSWORD` còn trống hoặc khác thì sửa `.env` sau đó không có tác dụng | Xoá tài khoản cũ rồi seed lại: `psql -U <DB_USER> -d <DB_NAME> -c "DELETE FROM app_user;"` rồi `npm run seed` trong `src/backend`. Với Docker: `docker compose down -v` rồi `docker compose up -d --build` |
+| Tên đăng nhập không được | Tên phải là `ktv<mã trung tâm>` hoặc `quanly<mã trung tâm>` | Ví dụ `ktv2`, `quanly2`; mật khẩu là giá trị `DEMO_PASSWORD` |
+| Máy đã có sẵn CSDL tên giống từ trước | `migrate` và `seed` chạy lại an toàn nên giữ nguyên dữ liệu và tài khoản cũ | Dùng tên CSDL khác trong `DB_NAME`, hoặc xoá CSDL cũ nếu không cần: `psql -U postgres -c "DROP DATABASE <tên>;"` rồi tạo lại (Bước 4) |
+| API báo `column ... is_active does not exist` | CSDL cũ chưa chạy migration 004 | `npm run migrate` trong `src/backend` |
 
 ### Kết quả chạy toàn luồng trên dữ liệu thật (buổi 10)
 
