@@ -57,5 +57,24 @@ services:
       - "${WEB_PORT:-8080}:8080"
     restart: unless-stopped
 
+  # Chạy bộ kiểm thử trong Docker: docker compose --profile test run --rm test
+  # Profile "test" nên `docker compose up` bình thường KHÔNG dựng hay chạy dịch vụ này.
+  test:
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      TEST_DB_NAME: ${TEST_DB_NAME:-smartcrm_test}  # CSDL riêng, bị xoá sạch mỗi test; không bao giờ là CSDL thật
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db_data:
