@@ -1,0 +1,10 @@
+# Dùng cho Dockerfile.test (ngữ cảnh dựng là thư mục gốc repo). Hai ảnh api và web có .dockerignore riêng trong src/.
+# Không đưa vào ảnh: thư viện cài trên máy, bí mật, kho git, dữ liệu lớn, tài liệu.
+**/node_modules
+.git
+.env
+.env.*
+data
+docs
+src/frontend
+*.pdf

@@ -1,0 +1,11 @@
+# Ảnh chạy bộ kiểm thử (node:test) trong Docker, cho máy chỉ cài Docker, không cài Node hay PostgreSQL.
+# Không chạy tay: dùng `docker compose --profile test run --rm test` (xem docs/deployment-guide.md).
+# Bố cục thư mục giống repo (src/backend và tests cạnh nhau) vì tests/helpers/test-db.js tìm backend theo đường dẫn tương đối.
+FROM node:22-alpine
+WORKDIR /repo/src/backend
+COPY src/backend/package.json src/backend/package-lock.json ./
+RUN npm ci
+COPY src/backend ./
+COPY tests /repo/tests
+# Tạo smartcrm_test nếu chưa có rồi chạy toàn bộ bộ kiểm thử; thoát mã khác 0 khi có test FAIL.
+CMD ["sh", "-c", "node scripts/create-test-db.js && npm test"]
