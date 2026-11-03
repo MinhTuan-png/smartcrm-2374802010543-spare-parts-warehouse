@@ -14,6 +14,7 @@ const STATUS = {
   TICKET_STATE_INVALID: 422,
   ALREADY_EXISTS: 409,  // tạo trùng mã linh kiện / dòng tồn đang dùng (TD-21)
   STOCK_NOT_EMPTY: 409, // ngừng dùng khi còn tồn (TD-21)
+  PAYLOAD_TOO_LARGE: 413, // thân yêu cầu vượt giới hạn của express.json (100 KB)
 };
 
 // Lỗi cho biết KHÔNG kết nối được CSDL (CSDL tắt, đang khởi động lại, quá thời gian chờ):
@@ -37,6 +38,18 @@ module.exports = function errorHandler(err, req, res, next) {
   if (err.type === 'entity.parse.failed') { // JSON gửi lên bị hỏng: lỗi người dùng, không phải 500
     logger.info('yêu cầu bị từ chối', { requestId: req.requestId, code: 'VALIDATION_FAILED' });
     return res.status(400).json(body('VALIDATION_FAILED', 'Nội dung gửi lên không phải JSON hợp lệ.'));
+  }
+  // Lỗi 4xx do Express hoặc body-parser tự ném (thân quá lớn, đường dẫn mã hoá hỏng, gzip hỏng...):
+  // đây là yêu cầu sai của bên gọi, không phải sự cố hệ thống (BUG-006). Không chuyển nguyên err.message
+  // ra ngoài vì nó mô tả chi tiết kỹ thuật của thư viện.
+  const httpStatus = err.status ?? err.statusCode;
+  if (Number.isInteger(httpStatus) && httpStatus >= 400 && httpStatus < 500) {
+    const tooLarge = httpStatus === 413;
+    const code = tooLarge ? 'PAYLOAD_TOO_LARGE' : 'VALIDATION_FAILED';
+    logger.info('yêu cầu bị từ chối', { requestId: req.requestId, code, httpStatus });
+    return res.status(tooLarge ? 413 : 400).json(body(code, tooLarge
+      ? 'Nội dung gửi lên quá lớn.'
+      : 'Yêu cầu không hợp lệ: không đọc được nội dung hoặc đường dẫn gửi lên.'));
   }
   // Lỗi không lường trước: ghi chi tiết vào log kèm mã tra cứu (= requestId), người dùng chỉ thấy mã tra cứu.
   // Không bao giờ trả câu SQL, tên bảng hay stack trace ra ngoài.
