@@ -27,7 +27,7 @@ Có hai cách. Cách 1 (Docker) chỉ cần hai lệnh và không phải cài g�
 ### 3.0. Tải mã nguồn (cả hai cách đều cần)
 
 ```bash
-git clone https://github.com/MinhTuan-png/smartcrm-2374802010543-spare-parts-warehouse.git
+git clone --branch v1.0 https://github.com/MinhTuan-png/smartcrm-2374802010543-spare-parts-warehouse.git
 cd smartcrm-2374802010543-spare-parts-warehouse
 ```
 
@@ -213,7 +213,15 @@ cd src/backend
 npm test
 ```
 
-Kết quả đúng: `# tests 72`, `# pass 72`. Không kết nối được CSDL test thì 35 test tích hợp được bỏ qua (`# skipped 35`), 37 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
+Kết quả đúng: `# tests 83`, `# pass 83`. Không kết nối được CSDL test thì 46 test tích hợp được bỏ qua (`# skipped 46`), 37 test còn lại vẫn chạy: unit test lớp nghiệp vụ xuất/nhập kho (`tests/stock.service.test.js`, dùng repository giả), hợp đồng, validation, xác thực, log và xử lý lỗi (`tests/logger.test.js`, `tests/cors.test.js`, `tests/db-timeout.test.js`). Ba test hồi quy của Bug Log: `tests/cors.test.js` (BUG-001), `tests/db-restart.test.js` (BUG-002), `tests/db-timeout.test.js` (BUG-003); test độ bền đầu vào bất thường: `tests/robustness.api.test.js` (BUG-004 đến BUG-006, BUG-008). Chạy lại một test case theo mã: `npm test -- TC-05` (mã TC-01 đến TC-10 nằm trong tên test, bảng đầy đủ ở `docs/test-report.md`). Log của server tắt khi chạy test; muốn xem thì đặt `LOG_LEVEL=debug`.
+
+**Chạy test bằng Docker (không cần cài Node), sau khi `docker compose up -d --build` đã xong:**
+
+```bash
+docker compose --profile test run --rm test
+```
+
+Dịch vụ `test` tự tạo CSDL `smartcrm_test` rồi chạy toàn bộ 83 test. Chạy một test case: `docker compose --profile test run --rm test sh -c "node scripts/create-test-db.js && npm test -- TC-05"`.
 
 ### 3.5. Khắc phục sự cố thường gặp
 
@@ -254,10 +262,15 @@ smartcrm-2374802010543-spare-parts-warehouse/
 ├── docs/
 │   ├── export/                  # Hình xuất từ các sơ đồ
 │   ├── screenshots/             # Ảnh kết quả chạy buổi 8 và buổi 10
+│   ├── api-docs/                # Tài liệu API tiếng Anh, 17 endpoint (BT3)
 │   ├── ai-disclosure.md
 │   ├── architecture-thuc-te.md  # Sơ đồ kiến trúc đã hiện thực (BT2)
 │   ├── api-contract.md
 │   ├── bug-log.md               # Nhật ký lỗi đã gỡ theo bốn bước (BT3)
+│   ├── checklist-bao-mat.md     # Checklist bảo mật 7 mục có bằng chứng (BT3)
+│   ├── deployment-guide.md      # Deployment Guide tiếng Anh (BT3)
+│   ├── test-plan.md             # Kế hoạch kiểm thử (BT3)
+│   ├── test-report.md           # Báo cáo kiểm thử 12 test case (BT3)
 │   ├── architecture.drawio
 │   ├── erd.drawio
 │   ├── schema.sql               # DDL theo BT1 (bản đang chạy: src/backend/db/migrations/)
@@ -273,7 +286,7 @@ smartcrm-2374802010543-spare-parts-warehouse/
 │   │   ├── repositories/        # Lớp 4 – Truy cập dữ liệu: chỉ có SQL
 │   │   ├── integrations/        # Tích hợp với L2: đọc phiếu, đổi mã trạng thái sang tên có dấu
 │   │   ├── db/                  # Lớp 5 – CSDL: kết nối, wait-for-db.js, migrations/ (001–004), seed/ (dữ liệu + tài khoản mẫu)
-│   │   ├── scripts/             # make-token.js, run-tests.js
+│   │   ├── scripts/             # make-token.js, run-tests.js, create-test-db.js
 │   │   ├── app.js               # Dựng ứng dụng Express (test dùng lại)
 │   │   ├── errors.js
 │   │   ├── logger.js            # Log JSON ra stdout, che trường nhạy cảm
@@ -303,6 +316,8 @@ smartcrm-2374802010543-spare-parts-warehouse/
 ├── .env                         # Cấu hình cục bộ; KHÔNG commit
 ├── .env.example                 # Mẫu cấu hình môi trường, đủ mọi biến
 ├── docker-compose.yml           # db · api · web, chạy bằng hai lệnh (mục 3.1)
+├── .dockerignore                # Loại tệp không cần khỏi ngữ cảnh dựng ảnh test
+├── Dockerfile.test              # Ảnh chạy test (dịch vụ test của docker-compose)
 ├── .gitignore
 ├── BT1_2374802010543_TranHuynhMinhTuan.pdf
 └── README.md
@@ -322,11 +337,23 @@ Quy ước kiến trúc: lớp trên chỉ gọi lớp ngay dưới (controller 
 | Hợp đồng API | [`docs/api-contract.md`](docs/api-contract.md) |
 | Nhật ký thay đổi thiết kế | [`docs/thay-doi-thiet-ke.md`](docs/thay-doi-thiet-ke.md) |
 | Nhật ký lỗi (Bug Log) | [`docs/bug-log.md`](docs/bug-log.md) |
+| Kế hoạch kiểm thử | [`docs/test-plan.md`](docs/test-plan.md) |
+| Báo cáo kiểm thử | [`docs/test-report.md`](docs/test-report.md) |
+| Checklist bảo mật | [`docs/checklist-bao-mat.md`](docs/checklist-bao-mat.md) |
+| Deployment Guide (English) | [`docs/deployment-guide.md`](docs/deployment-guide.md) |
+| API documentation (English) | [`docs/api-docs/README.md`](docs/api-docs/README.md) |
 | Khai báo sử dụng công cụ AI | [`docs/ai-disclosure.md`](docs/ai-disclosure.md) |
 | Kiến trúc đã hiện thực (BT2) | [`docs/architecture-thuc-te.md`](docs/architecture-thuc-te.md) |
 | Hình ảnh sơ đồ đã xuất | [`docs/export/`](docs/export/) |
 
-## 6. Trạng thái hiện tại (buổi 11)
+## 6. Trạng thái hiện tại (Bài tập 3)
+
+Bài tập 3 (kiểm thử và đóng gói, tag `v1.0`):
+
+- [x] Test Plan, Test Report 12 test case, Bug Log 8 lỗi (5 lỗi mới tìm bằng kiểm thử bảo mật và độ bền, đã sửa), checklist bảo mật 7 mục
+- [x] 83 test backend (37 không cần CSDL, 46 cần CSDL) và 4 test giao diện; chạy bằng Docker: `docker compose --profile test run --rm test`
+- [x] Deployment Guide và API docs bằng tiếng Anh
+- [x] Chạy hệ thống đúng hai lệnh (mục 3.1)
 
 Buổi 11:
 
