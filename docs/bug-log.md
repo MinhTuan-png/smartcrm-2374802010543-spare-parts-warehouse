@@ -120,4 +120,4 @@ Cách tìm: chạy các test case bảo mật và đầu vào bất thường c�
 | 4. Cách tái lập | `curl -sI http://localhost:3000/health` và tìm `X-Powered-By` |
 | 5. Nguyên nhân | Express tự thêm tiêu đề này mặc định; `app.js` không gọi `app.disable('x-powered-by')` |
 | 6. Cách sửa | Thêm `app.disable('x-powered-by')` trong `app.js` ngay sau khi tạo `app` |
-| 7. Commit và xác nhận | https://github.com/MinhTuan-png/smartcrm-2374802010543-spare-parts-warehouse/commit/033c7d0 · Chạy lại TC-10 bước kiểm tiêu đề: không còn dòng `X-Powered-By` (`curl -sI ... | grep -ci x-powered-by` ra 0) → PASS. Kiểm luồng đúng bằng tay: `curl -sI` vẫn trả `X-Request-Id` và `/health` vẫn trả 200 `{"status":"ok","db":"ok"}` → PASS |
+| 7. Commit và xác nhận | https://github.com/MinhTuan-png/smartcrm-2374802010543-spare-parts-warehouse/commit/033c7d0 · Chạy lại TC-10 bước kiểm tiêu đề: không còn dòng `X-Powered-By` (lọc kết quả `curl -sI` bằng `grep -ci x-powered-by` ra 0) → PASS. Kiểm luồng đúng bằng tay: `curl -sI` vẫn trả `X-Request-Id` và `/health` vẫn trả 200 `{"status":"ok","db":"ok"}` → PASS |
