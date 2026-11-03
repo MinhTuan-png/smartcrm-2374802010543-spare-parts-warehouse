@@ -9,7 +9,7 @@
 | **Trung tâm** | center_id nằm trong đường dẫn và phải bằng center_id của token. Khác nhau thì trả 403 FORBIDDEN, kể cả khi trung tâm đó không tồn tại, để không lộ dữ liệu (QT-14, NFR5). Các endpoint theo mã phiếu (EP5, EP8) không có center_id trên đường dẫn: lớp nghiệp vụ so center_id của phiếu với center_id trong token và trả 403 nếu khác (QT-14). |
 | **Kiểu dữ liệu** | Tên trường snake_case; số lượng là số nguyên JSON; tiền là số nguyên VND; ngày theo ISO 8601 YYYY-MM-DD; trạng thái phiếu giữ nguyên chữ có dấu: "Mới", "Đã phân công", "Đang xử lý", "Chờ linh kiện", "Hoàn tất", "Đã đóng", "Đã hủy". |
 | **Ánh xạ tên API và CSDL** | Các trường trùng tên giữa API và CSDL (part_code, ticket_code, center_id, quantity của part_stock, min_threshold, unit_price). Chỉ ba trường của giao dịch kho đổi tên: type = loai, quantity = so_luong, transaction_date = ngay; CSDL giữ tên cột của part_transactions.csv để nạp bằng COPY. |
-| **Phân trang** | page ≥ 1 (mặc định 1), cố định 20 dòng mỗi trang (FR1, FR7). Phản hồi có page, page_size, total_items, total_pages. |
+| **Phân trang** | page từ 1 đến 999999 (mặc định 1), cố định 20 dòng mỗi trang (FR1, FR7). Phản hồi có page, page_size, total_items, total_pages. |
 | **Cảnh báo tồn** | low_stock_warning = (quantity < min_threshold). warning_label = "HẾT HÀNG" nếu có cảnh báo và quantity = 0; "SẮP HẾT" nếu có cảnh báo và quantity > 0; ngược lại null (QT-09, FR6). |
 | **Định dạng lỗi** | Mọi lỗi 4xx/5xx trả `{"error": {"code": "...", "message": "...", "details": ...}}`. Mã error.code dùng chung: VALIDATION_FAILED, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INSUFFICIENT_STOCK, TICKET_STATE_INVALID, ALREADY_EXISTS, STOCK_NOT_EMPTY, INTERNAL_ERROR (hai mã 409 ALREADY_EXISTS, STOCK_NOT_EMPTY chỉ dùng cho CRUD danh mục ở mục 1.15). code dành cho máy đọc (giao diện rẽ nhánh theo code); message là câu tiếng Việt cho người dùng, không chứa SQL, tên bảng hay stack trace; details là `null`, danh sách `[{field, reason}]` với 400, hoặc đối tượng số liệu với 409/422. Lỗi 500 và 503 có `details.lookup_id` (6 ký tự) bằng mã tương quan `X-Request-Id` của yêu cầu, trùng với dòng ghi log ở máy chủ để tra cứu. 503 (cùng code `INTERNAL_ERROR`) nghĩa là tạm thời không kết nối được CSDL (CSDL tắt, đang khởi động lại, quá `DB_CONNECT_TIMEOUT_MS`); dữ liệu không đổi, thử lại sau là được (TD-19). Đường dẫn không tồn tại trả 404 NOT_FOUND cùng định dạng. |
 | **Mã tương quan** | Mọi phản hồi có header `X-Request-Id`. Bên gọi có thể gửi sẵn header này (chữ, số, dấu gạch, tối đa 64 ký tự); không gửi hoặc sai dạng thì máy chủ tự sinh 6 ký tự hex. Mọi dòng log của yêu cầu ghi cùng `requestId` này (buổi 11). |
@@ -94,7 +94,7 @@ Từ BT2 phản hồi có thêm `low_stock_count` (số nguyên ≥ 0): trong to
 | Mã | Khi nào | error.code |
 |---|---|---|
 | 200 | Thành công, kể cả khi không có dòng nào khớp (items là mảng rỗng, total_items = 0) hoặc page vượt quá total_pages. | — |
-| 400 | q dài hơn 50 ký tự; low_only không phải true/false; page < 1 hoặc không phải số nguyên; center_id không phải số nguyên. | VALIDATION_FAILED |
+| 400 | q dài hơn 50 ký tự; low_only không phải true/false; page không phải số nguyên từ 1 đến 999999; center_id không phải số nguyên. | VALIDATION_FAILED |
 | 401 | Thiếu hoặc sai token. | UNAUTHORIZED |
 | 403 | center_id khác trung tâm của người dùng (ví dụ kỹ thuật viên trung tâm 2 xem trung tâm 3). | FORBIDDEN |
 | 404 | Không áp dụng: tra cứu không có kết quả là 200 với danh sách rỗng, không phải lỗi. | — |

@@ -11,7 +11,8 @@ const TICKET_CODE = /^BH-\d{6}\/\d{4}$/; // ví dụ BH-000002/2025
 const integer = (min, max, reason) =>
   z.any().refine((v) => Number.isInteger(v) && v >= min && v <= max, { message: reason });
 
-const page = z.string().regex(/^[1-9]\d*$/, 'Phải là số nguyên ≥ 1.').optional()
+// Chặn trên 999999: số quá lớn làm OFFSET vượt giới hạn bigint của PostgreSQL và thành lỗi 500 (BUG-004).
+const page = z.string().regex(/^[1-9]\d{0,5}$/, 'Phải là số nguyên từ 1 đến 999999.').optional()
   .transform((v) => (v === undefined ? 1 : Number(v)));
 
 const partCode = z.string({ error: 'Bắt buộc, dạng chữ hoa, số và dấu gạch ngang (5–30 ký tự).' })
