@@ -18,18 +18,22 @@ const page = z.string().regex(/^[1-9]\d{0,5}$/, 'Phải là số nguyên từ 1 
 const partCode = z.string({ error: 'Bắt buộc, dạng chữ hoa, số và dấu gạch ngang (5–30 ký tự).' })
   .regex(PART_CODE, 'Bắt buộc, dạng chữ hoa, số và dấu gạch ngang (5–30 ký tự).');
 
+// PostgreSQL không lưu được ký tự NUL (\u0000) trong chuỗi: để lọt xuống CSDL thì thành lỗi 500 (BUG-005).
+const noNul = (v) => !v.includes('\u0000');
+const NUL_REASON = 'Không được chứa ký tự rỗng (NUL).';
+
 const quantity = integer(1, 9999, 'Phải là số nguyên từ 1 đến 9999.');
 const minThreshold = integer(0, 2147483647, 'Phải là số nguyên ≥ 0.');
 
 // Danh mục linh kiện (TD-21): tên 1–120 ký tự (part_name VARCHAR(120)), giá VND NUMERIC(12,0).
 const partName = z.string({ error: 'Bắt buộc, 1–120 ký tự.' }).trim()
-  .min(1, 'Bắt buộc, 1–120 ký tự.').max(120, 'Bắt buộc, 1–120 ký tự.');
+  .min(1, 'Bắt buộc, 1–120 ký tự.').max(120, 'Bắt buộc, 1–120 ký tự.').refine(noNul, NUL_REASON);
 const unitPrice = integer(0, 999999999999, 'Phải là số nguyên VND từ 0 đến 999.999.999.999.');
 
 const schemas = {
   // EP1
   stockQuery: z.object({
-    q: z.string({ error: 'Phải là chuỗi.' }).trim().max(50, 'Tối đa 50 ký tự.').optional()
+    q: z.string({ error: 'Phải là chuỗi.' }).trim().max(50, 'Tối đa 50 ký tự.').refine(noNul, NUL_REASON).optional()
       .transform((v) => v || ''),
     low_only: z.enum(['true', 'false'], { error: 'Chỉ nhận true hoặc false.' }).optional()
       .transform((v) => v === 'true'),
@@ -52,7 +56,7 @@ const schemas = {
   stockCreateBody: z.object({ part_code: partCode, min_threshold: minThreshold }),
   // Danh mục linh kiện (TD-21)
   partsQuery: z.object({
-    q: z.string({ error: 'Phải là chuỗi.' }).trim().max(50, 'Tối đa 50 ký tự.').optional()
+    q: z.string({ error: 'Phải là chuỗi.' }).trim().max(50, 'Tối đa 50 ký tự.').refine(noNul, NUL_REASON).optional()
       .transform((v) => v || ''),
     page,
   }),
@@ -73,7 +77,8 @@ const schemas = {
   }),
   // Đăng nhập: chỉ kiểm tra có giá trị, không gợi ý quy tắc mật khẩu cho người đoán.
   loginBody: z.object({
-    username: z.string({ error: 'Bắt buộc.' }).trim().min(1, 'Bắt buộc.').max(50, 'Tối đa 50 ký tự.'),
+    username: z.string({ error: 'Bắt buộc.' }).trim().min(1, 'Bắt buộc.').max(50, 'Tối đa 50 ký tự.')
+      .refine(noNul, NUL_REASON),
     password: z.string({ error: 'Bắt buộc.' }).min(1, 'Bắt buộc.').max(100, 'Tối đa 100 ký tự.'),
   }),
 };
