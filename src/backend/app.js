@@ -12,6 +12,9 @@ const { AppError } = require('./errors');
 
 const app = express();
 
+// Không báo "X-Powered-By: Express" trong mọi phản hồi: tiêu đề này chỉ giúp kẻ tấn công biết công nghệ (BUG-008).
+app.disable('x-powered-by');
+
 // Gắn mã tương quan cho mỗi yêu cầu và ghi một dòng log khi yêu cầu kết thúc (đặt đầu tiên).
 app.use(requestId);
 
