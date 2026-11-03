@@ -29,7 +29,7 @@ const rowOf = async (partCode) =>
   (await testDb.db.query('SELECT is_active FROM part WHERE part_code = $1', [partCode])).rows[0];
 
 
-it('[luồng đúng] linh kiện: tạo → đọc → sửa → xoá (ngừng dùng) → đọc lại 404, dòng vẫn còn trong CSDL', async () => {
+it('TC-04 · [luồng đúng] linh kiện: tạo → đọc → sửa → xoá (ngừng dùng) → đọc lại 404, dòng vẫn còn trong CSDL', async () => {
   const created = await call('POST', '/api/v1/parts', { token: manager(), body: NEW_PART });
   assert.equal(created.status, 201);
   assert.deepEqual(created.body, NEW_PART);

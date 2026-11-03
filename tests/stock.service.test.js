@@ -77,14 +77,14 @@ test('[luồng đúng] tồn 3 nhập 10 → 13, giao dịch NHAP không có mã
   assert.equal(r.transaction.ticket_code, null);
 });
 
-test('[giá trị biên] xuất đúng bằng tồn (5/5) được phép, tồn về 0 và báo HẾT HÀNG', async () => {
+test('TC-05 · [giá trị biên] xuất đúng bằng tồn (5/5) được phép, tồn về 0 và báo HẾT HÀNG', async () => {
   setup({ quantity: 5, minThreshold: 3 });
   const r = await service.exportPart(exportInput(5));
   assert.equal(r.stock.quantity, 0);
   assert.equal(r.warning_label, 'HẾT HÀNG');
 });
 
-test('[giá trị biên] xuất nhiều hơn tồn 1 đơn vị (tồn 5, xuất 6) → 409 INSUFFICIENT_STOCK (QT-09)', async () => {
+test('TC-06 · [giá trị biên] xuất nhiều hơn tồn 1 đơn vị (tồn 5, xuất 6) → 409 INSUFFICIENT_STOCK (QT-09)', async () => {
   setup({ quantity: 5 });
   await expectRejected(service.exportPart(exportInput(6)), 'INSUFFICIENT_STOCK', 5);
 });

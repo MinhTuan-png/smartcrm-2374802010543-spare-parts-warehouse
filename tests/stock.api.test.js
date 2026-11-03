@@ -44,7 +44,7 @@ it('EP1: không có dòng nào khớp là 200 với items rỗng, không phải 
   assert.equal(r.body.total_pages, 0);
 });
 
-it('EP2 [luồng đúng]: tồn 10 xuất 2 còn 8, có 1 giao dịch XUAT gắn mã phiếu (US2 tiêu chí 1)', async () => {
+it('TC-01 · EP2 [luồng đúng]: tồn 10 xuất 2 còn 8, có 1 giao dịch XUAT gắn mã phiếu (US2 tiêu chí 1)', async () => {
   const r = await call('POST', '/api/v1/centers/2/stock/exports', { token: technician(), body: EXPORT('PIN-OP-03', 2) });
   assert.equal(r.status, 201);
   assert.equal(r.body.stock.quantity, 8);
@@ -83,6 +83,14 @@ it('EP2 422: phiếu "Đã phân công" → TICKET_STATE_INVALID, tồn không �
   assert.equal(await testDb.quantityOf(2, 'PIN-OP-03'), 10);
 });
 
+it('TC-02 · EP2 [luồng đúng] QT-L5-02: phiếu "Chờ linh kiện" cũng được xuất, tồn 10 xuất 1 còn 9, giao dịch gắn đúng mã phiếu', async () => {
+  const r = await call('POST', '/api/v1/centers/2/stock/exports', { token: technician(), body: EXPORT('PIN-OP-03', 1, 'BH-000003/2025') });
+  assert.equal(r.status, 201);
+  assert.equal(r.body.stock.quantity, 9);
+  assert.equal(r.body.transaction.ticket_code, 'BH-000003/2025');
+  assert.equal(await testDb.quantityOf(2, 'PIN-OP-03'), 9);
+});
+
 it('EP2 404/403: phiếu không có, linh kiện không có dòng tồn, phiếu của trung tâm khác', async () => {
   const token = technician();
   const noTicket = await call('POST', '/api/v1/centers/2/stock/exports', { token, body: EXPORT('PIN-OP-03', 1, 'BH-999999/2026') });
@@ -103,7 +111,7 @@ it('EP2 400: quantity = 0 trả danh sách trường sai theo hợp đồng', as
   } });
 });
 
-it('EP3: tồn 1 nhập 20 → 21, giao dịch NHAP không có mã phiếu (US3 tiêu chí 1)', async () => {
+it('TC-03 · EP3: tồn 1 nhập 20 → 21, giao dịch NHAP không có mã phiếu (US3 tiêu chí 1)', async () => {
   const r = await call('POST', '/api/v1/centers/2/stock/imports', { token: manager(), body: { part_code: 'LOA-AP-01', quantity: 20 } });
   assert.equal(r.status, 201);
   assert.equal(r.body.stock.quantity, 21);
@@ -141,7 +149,7 @@ it('NFR3: 20 yêu cầu xuất 1 đồng thời trên tồn 10 → đúng 10 th�
   assert.equal(await testDb.countTransactions('XUAT'), 10);
 });
 
-it('NFR5: 100% yêu cầu sai trung tâm hoặc sai vai trò bị 403, dữ liệu không đổi', async () => {
+it('TC-09 · NFR5: 100% yêu cầu sai trung tâm hoặc sai vai trò bị 403, dữ liệu không đổi', async () => {
   const cases = [
     // sai trung tâm, cả hai vai trò, mọi endpoint
     ['GET', '/api/v1/centers/3/stock', technician()],
