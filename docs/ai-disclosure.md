@@ -36,3 +36,17 @@ Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ n
 | Không dùng | Hỏi giảng viên về mâu thuẫn giữa tiêu chí S1 và QT-13; tạo commit, push, gắn tag `v0.2` | Repo GitHub | Không áp dụng |
 
 Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp. Trần Huỳnh Minh Tuấn - 2374802010543 - 28/10/2026
+
+
+## Bài tập 3 (buổi 13–16)
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở tệp / hàm nào | Em đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Claude | Đề xuất các đầu vào bất thường để thử (số trang quá lớn, ký tự NUL, thân quá lớn, URL mã hoá sai, gzip lỗi) và viết test hồi quy cùng bản sửa cho BUG-004 đến BUG-008 | `tests/robustness.api.test.js`, `validators/stock.schema.js`, `controllers/error-handler.js`, `app.js`, `package-lock.json` | Với mỗi lỗi: chạy test trước khi sửa thấy FAIL (API trả 500), sửa rồi chạy lại thấy PASS; đọc diff của từng commit trước khi chấp nhận; mở lại các link commit trong `docs/bug-log.md`. |
+| Claude | Soạn Test Plan, Test Report 12 test case, Bug Log bổ sung, checklist bảo mật | `docs/test-plan.md`, `docs/test-report.md`, `docs/bug-log.md`, `docs/checklist-bao-mat.md` | Chạy từng test case bằng `npm test -- TC-xx` và đối chiếu cột kết quả thực tế; kiểm tra số test (83; 37 không cần CSDL, 46 cần CSDL) bằng cách chạy với và không có CSDL; từng mục checklist có bằng chứng là lệnh hoặc tệp mở lại được. |
+| Claude | Tạo đường chạy test bằng Docker (dịch vụ `test`, `Dockerfile.test`, `create-test-db.js`) và `run-tests.js` lọc theo mã TC | `docker-compose.yml`, `Dockerfile.test`, `.dockerignore`, `src/backend/scripts/` | Clone repo vào thư mục trống, chạy `docker compose up -d --build` rồi `docker compose --profile test run --rm test`, thấy `# pass 83`; chạy lần hai vẫn PASS. |
+| Claude | Soạn Deployment Guide và API docs bằng tiếng Anh | `docs/deployment-guide.md`, `docs/api-docs/README.md` | Làm theo Deployment Guide từ bản clone sạch; từng ví dụ API được chạy thật và dán nguyên kết quả; đối chiếu mã lỗi và điều kiện với mã nguồn của controller, service và validator. |
+| Claude | Soạn bản nháp báo cáo PDF Bài tập 3 | `BT3_2374802010543_TranHuynhMinhTuan.pdf` | Đọc lại từng mục, đối chiếu số liệu với kết quả chạy; thay ảnh minh hoạ bằng ảnh chụp từ máy của mình. |
+| Không dùng | Chạy lại test, bước white-box từ bản clone sạch trên máy Windows, chụp ảnh, tạo commit, push, gắn tag `v1.0` | Máy cá nhân, repo GitHub | Không áp dụng |
+
+Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp. Trần Huỳnh Minh Tuấn - 2374802010543 - 03/11/2026
