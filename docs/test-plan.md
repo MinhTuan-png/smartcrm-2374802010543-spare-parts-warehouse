@@ -32,7 +32,7 @@ Bộ kiểm thử tự động chạy bằng một lệnh, tổng **83 test** �
 |---|---|---|---|
 | Unit và hợp đồng (service dùng repository giả, schema zod, hàm chuyển đổi, xác thực, logger, CORS, hết giờ CSDL) | 37 | `stock.service.test.js` (8), `stock.schema.test.js` (7), `stock.contract.test.js` (6), `auth.test.js` (5), `logger.test.js` (7), `cors.test.js` (2), `db-timeout.test.js` (2) | Không |
 | Integration và API qua HTTP với PostgreSQL thật | 46 | `stock.api.test.js` (15), `robustness.api.test.js` (10), `ticket.api.test.js` (6), `part.api.test.js` (6), `stock-crud.api.test.js` (4), `auth.api.test.js` (3), `health.test.js` (1), `db-restart.test.js` (1) | Có |
-| Giao diện (vitest) | 4 | `src/frontend/src/api/stock.view.test.js` | Không |
+| Giao diện (node:test) | 4 | `src/frontend/src/api/stock.view.test.js` | Không |
 
 **12 test case trong Test Report** là phần được chọn từ bộ trên (mỗi test case có mã `TC-xx` trong tên test để chạy lại bằng `npm test -- TC-01`): 4 luồng đúng cho 4 quy tắc (cộng một quy tắc dữ liệu), 2 giá trị biên, 2 dữ liệu sai, 2 bảo mật, 1 phụ thuộc, 1 tái lập. Số còn lại trong bộ 83 test là kiểm thử bổ sung đã có từ BT2.
 
