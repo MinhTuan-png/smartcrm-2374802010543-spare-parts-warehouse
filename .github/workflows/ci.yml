@@ -1,0 +1,82 @@
+# Tự chạy kiểm thử mỗi lần đẩy mã hoặc mở pull request. Tab Actions của repo hiện xanh khi mọi bước đạt.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Test (backend, frontend, audit)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: ci_password
+      DB_NAME: smartcrm
+      TEST_DB_NAME: smartcrm_test
+      SECRET_KEY: ci-secret-khong-dung-that
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            src/backend/package-lock.json
+            src/frontend/package-lock.json
+      - name: Cài thư viện backend
+        run: npm ci
+        working-directory: src/backend
+      - name: Tạo CSDL test
+        run: node scripts/create-test-db.js
+        working-directory: src/backend
+      - name: Chạy test backend (83 test, không được bỏ qua test nào)
+        run: npm test
+        working-directory: src/backend
+      - name: Cài thư viện và chạy test frontend
+        run: |
+          npm ci
+          npm test
+        working-directory: src/frontend
+      - name: Kiểm tra lỗ hổng thư viện (TC-11)
+        run: |
+          npm audit --omit=dev
+          cd ../frontend && npm audit
+        working-directory: src/backend
+
+  docker:
+    name: Dựng hệ thống bằng Docker (hai lệnh trong README)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lệnh 1, tạo .env từ mẫu
+        run: cp .env.example .env
+      - name: Lệnh 2, dựng và chờ ba dịch vụ healthy
+        run: docker compose up -d --build --wait --wait-timeout 300
+      - name: Kiểm tra /health và đăng nhập qua cổng 8080
+        run: |
+          curl -fsS http://localhost:3000/health
+          curl -fsS -X POST http://localhost:8080/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"ktv2","password":"matkhau-demo-2026"}' | grep -q access_token
+      - name: Chạy test trong Docker
+        run: docker compose --profile test run --rm test
+      - name: Xem log nếu lỗi
+        if: failure()
+        run: docker compose logs --tail 80
