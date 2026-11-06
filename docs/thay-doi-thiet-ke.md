@@ -149,3 +149,11 @@
 - Thay đổi gì : Thêm `docs/api-docs/README.md` (17 endpoint, mỗi endpoint 7 mục, ví dụ lấy từ lần chạy thật), `docs/deployment-guide.md` (tiếng Anh, 6 phần), `docs/test-plan.md`, `docs/test-report.md`, `docs/checklist-bao-mat.md`.
 - Vì sao : Yêu cầu nộp của BT3 (track SE: tài liệu API tiếng Anh, hướng dẫn triển khai tiếng Anh).
 - Ảnh hưởng : Chỉ thêm tài liệu, không đổi mã nguồn.
+
+## Sau phản hồi Bài tập 2 (buổi 14, ngày 06/11/2026)
+
+### TD-25 CRUD danh mục mới có API, chưa có màn hình quản trị
+- Phản hồi của GV : Bài tốt, không có lỗi trừ điểm; chỉ lưu ý chức năng CRUD danh mục linh kiện mới có API, chưa có màn hình quản trị.
+- Quyết định : GIỮ NGUYÊN
+- Lý do : Tiêu chí S1 của BT2 yêu cầu ít nhất hai thực thể đủ CRUD ở mức API, và phần đó đã đạt. Quản trị danh mục nằm ở mức WON'T trong SRS của luồng L5 (xem TD-21), còn ba màn hình của wireframe (tra cứu tồn, xuất, nhập) đã đủ cho luồng chính. Đề BT3 tập trung vào kiểm thử và đóng gói, nên thêm màn hình mới ở giai đoạn này sẽ làm lệch tài liệu đã nộp (README, API docs, Test Plan) và tăng rủi ro cho bản `v1.0` khi chưa có test giao diện cho nó.
+- Ảnh hưởng : Không đổi mã nguồn. Danh mục vẫn thao tác được qua API (`docs/api-docs/README.md`, các endpoint 13 đến 17 và 4, 10). Màn hình quản trị ghi là việc để sau.
